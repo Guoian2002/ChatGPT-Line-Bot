@@ -22,7 +22,7 @@ class Memory(MemoryInterface):
 
     def _initialize(self, user_id: str):
         self.storage[user_id] = [{
-            'role': 'system', 'content': self.system_messages.get(user_id) or self.default_system_message
+            'role': 'system', 'content': self.default_system_message
         }]
 
     def _drop_message(self, user_id: str):
