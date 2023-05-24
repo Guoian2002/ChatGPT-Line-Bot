@@ -122,7 +122,7 @@ def handle_text_message(event):
                 if not is_successful:
                     raise Exception(error_message)
                 role, response = get_role_and_content(response)
-                msg = TextSendMessage(text=memory.get(user_id)[0]["role"])
+                msg = TextSendMessage(text=memory.get(user_id)[0]["content"])
             memory.append(user_id, role, response)
     except ValueError:
         msg = TextSendMessage(text='Token 無效，請重新註冊，格式為 /註冊 sk-xxxxx')
