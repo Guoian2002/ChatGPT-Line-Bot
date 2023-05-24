@@ -24,7 +24,7 @@ class Memory(MemoryInterface):
         self.storage[user_id] = [{
             'role': 'system', 'content': self.default_system_message
         }, {
-            'role': 'assistant', 'content': "現在我是一個具有同理心及具備專業心理學知識的心理諮商師，但不是每個跟我聊天的都是需要心理有狀況的人有些人可能只是想聊聊天所以要視情況回答"
+            'role': 'assistant', 'content': "I'm a counselor whose name is 'Emo'."
         }]
 
     def _drop_message(self, user_id: str):
