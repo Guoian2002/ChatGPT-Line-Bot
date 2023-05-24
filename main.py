@@ -57,7 +57,7 @@ def handle_text_message(event):
 
     try:
         if text.startswith('/註冊'):
-            api_key = text[3:].strip()
+            api_key = os.getenv("CHATGPT_API_KEY")
             model = OpenAIModel(api_key=api_key)
             is_successful, _, _ = model.check_token_valid()
             if not is_successful:
