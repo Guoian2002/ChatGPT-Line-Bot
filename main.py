@@ -69,8 +69,8 @@ def handle_text_message(event):
 
     try:
         
-        if text=='指令說明':
-            msg = TextSendMessage(text="指令：\n\n/忘記\n👉 Emo會忘記上下文關係，接下來的回答不再跟上文有關係\n\n/請畫 + Prompt\n👉 請畫+你想畫的東西 Emo會在短時間畫給你\n\n語音輸入\n👉 使用line語音輸入Emo可以直接回覆喔~\n\n其他文字輸入\n👉 Emo直接以文字回覆")
+        if text=='指令':
+            msg = TextSendMessage(text="指令：\n\n忘記\n👉 Emo會忘記上下文關係，接下來的回答不再跟上文有關係~\n\n/請畫 + Prompt\n👉 請畫+你想畫的東西 Emo會在短時間畫給你~\n\n語音輸入\n👉 使用line語音輸入Emo可以直接回覆喔~\n\n其他文字輸入\n👉 Emo直接以文字回覆~")
 
         elif text=='忘記':
             memory.remove(user_id)
