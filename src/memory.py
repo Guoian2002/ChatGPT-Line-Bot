@@ -23,8 +23,6 @@ class Memory(MemoryInterface):
     def _initialize(self, user_id: str):
         self.storage[user_id] = [{
             'role': 'system', 'content': self.default_system_message
-        }, {
-            'role': 'assistant', 'content': "I'm a counselor whose name is 'Emo'."
         }]
 
     def _drop_message(self, user_id: str):
