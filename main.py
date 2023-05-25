@@ -100,9 +100,35 @@ def handle_text_message(event):
                     quick_reply=QuickReply(
                     items=[
                         QuickReplyButton(
-                            action=MessageAction(label="文字訊息",text="回傳文字")
-                        )
-
+                            action=MessageAction(label="士林區")
+                        ),
+                        QuickReplyButton(
+                            action=MessageAction(label="大同區")
+                        ),
+                        QuickReplyButton(
+                            action=MessageAction(label="信義區")
+                        ),
+                        QuickReplyButton(
+                            action=MessageAction(label="北投區")
+                        ),
+                        QuickReplyButton(
+                            action=MessageAction(label="文山區")
+                        ),
+                        QuickReplyButton(
+                            action=MessageAction(label="大安區")
+                        ),
+                        QuickReplyButton(
+                            action=MessageAction(label="中正區")
+                        ),
+                        QuickReplyButton(
+                            action=MessageAction(label="內湖區")
+                        ),
+                        QuickReplyButton(
+                            action=MessageAction(label="松山區")
+                        ),
+                        QuickReplyButton(
+                            action=MessageAction(label="中山區")
+                        ),
                         ]
                     )
                 )
