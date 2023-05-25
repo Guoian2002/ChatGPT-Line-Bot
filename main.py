@@ -1,3 +1,4 @@
+
 from dotenv import load_dotenv
 from flask import Flask, request, abort
 from linebot import (
@@ -7,7 +8,7 @@ from linebot.exceptions import (
     InvalidSignatureError
 )
 from linebot.models import (
-    MessageEvent, TextMessage, TextSendMessage, ImageSendMessage, AudioMessage
+    MessageEvent, TextMessage, TextSendMessage, ImageSendMessage, AudioMessage,QuickReply,QuickReplyButton,MessageAction
 )
 import os
 import uuid
@@ -103,7 +104,9 @@ def handle_text_message(event):
                             action=MessageAction(label="士林區")
                         )
 
-                    ]))
+                        ]
+                    )
+                )
             elif text=='我想要做心理測驗':
                 pass
 
