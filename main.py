@@ -99,36 +99,36 @@ def handle_text_message(event):
                     quick_reply=QuickReply(
                     items=[
                         QuickReplyButton(
-                            action=MessageAction(label="士林區")
+                            action=MessageAction(label="士林區", text="回傳文字")
                         ),
                         QuickReplyButton(
-                            action=MessageAction(label="大同區")
+                            action=MessageAction(label="大同區", text="回傳文字")
                         ),
                         QuickReplyButton(
-                            action=MessageAction(label="信義區")
+                            action=MessageAction(label="信義區", text="回傳文字")
                         ),
                         QuickReplyButton(
-                            action=MessageAction(label="北投區")
+                            action=MessageAction(label="北投區", text="回傳文字")
                         ),
                         QuickReplyButton(
-                            action=MessageAction(label="文山區")
+                            action=MessageAction(label="文山區", text="回傳文字")
                         ),
                         QuickReplyButton(
-                            action=MessageAction(label="大安區")
+                            action=MessageAction(label="大安區", text="回傳文字")
                         ),
                         QuickReplyButton(
-                            action=MessageAction(label="中正區")
+                            action=MessageAction(label="中正區", text="回傳文字")
                         ),
                         QuickReplyButton(
-                            action=MessageAction(label="內湖區")
+                            action=MessageAction(label="內湖區", text="回傳文字")
                         ),
                         QuickReplyButton(
-                            action=MessageAction(label="松山區")
+                            action=MessageAction(label="松山區", text="回傳文字")
                         ),
                         QuickReplyButton(
-                            action=MessageAction(label="中山區")
+                            action=MessageAction(label="中山區", text="回傳文字")
                         )
-                        
+
                         ]
                     )
                 )
