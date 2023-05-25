@@ -99,7 +99,7 @@ def handle_text_message(event):
                 chat=False
                 
 
-            if chat==True:
+            elif chat==True:
                 user_model = model_management[user_id]
                 memory.append(user_id, 'user', text)
                 url = website.get_url_from_text(text)
