@@ -35,6 +35,8 @@ memory = Memory(system_message=os.getenv('SYSTEM_MESSAGE'), memory_message_count
 model_management = {}
 api_keys = {}
 chat=True
+place_array=["士林","士林區","大同","大同區","信義","信義區","北投","北投區","文山","文山區","大安","大安區","中正","中正區","內湖","內湖區","松山","松山區","中山","中山區"]
+
 
 
 @app.route("/callback", methods=['POST'])
@@ -97,7 +99,10 @@ def handle_text_message(event):
                 pass
             elif text=='我想要做心理測驗':
                 pass
-            
+
+            elif text in place_array:
+                pass
+
             elif chat==True:
                 user_model = model_management[user_id]
                 memory.append(user_id, 'user', text)
