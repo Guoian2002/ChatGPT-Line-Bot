@@ -96,7 +96,6 @@ def handle_text_message(event):
                 chat=False
             elif text=='我想要查詢心理醫療機構':
                 msg=TextSendMessage(
-                    text="文字訊息",
                     quick_reply=QuickReply(
                     items=[
                         QuickReplyButton(
@@ -128,7 +127,8 @@ def handle_text_message(event):
                         ),
                         QuickReplyButton(
                             action=MessageAction(label="中山區")
-                        ),
+                        )
+                        
                         ]
                     )
                 )
