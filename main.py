@@ -101,7 +101,7 @@ def handle_text_message(event):
                     quick_reply=QuickReply(
                     items=[
                         QuickReplyButton(
-                            action=MessageAction(label="士林區")
+                            action=MessageAction(label="士林區",text="回傳文字")
                         )
 
                         ]
