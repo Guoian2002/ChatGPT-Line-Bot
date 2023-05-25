@@ -93,8 +93,11 @@ def handle_text_message(event):
                 chat=True
             elif text=='關閉自動回覆':
                 chat=False
-                
-
+            elif text=='我想要查詢心理醫療機構':
+                pass
+            elif text=='我想要做心理測驗':
+                pass
+            
             elif chat==True:
                 user_model = model_management[user_id]
                 memory.append(user_id, 'user', text)
