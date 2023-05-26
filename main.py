@@ -1,3 +1,6 @@
+from gettext import install
+
+
 pip install pandas
 
 from dotenv import load_dotenv
