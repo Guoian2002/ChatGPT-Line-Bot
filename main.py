@@ -67,6 +67,12 @@ def handle_text_message(event):
     storage.save({
         user_id: api_key
     })
+    if user_id not in user_messages:
+        user_messages[user_id] = []
+    if user_id not in assistant_messages:
+        assistant_messages[user_id] = []
+
+    user_messages[user_id].append(text)
 
     try:
         
@@ -92,9 +98,10 @@ def handle_text_message(event):
         )
 
         elif text == '總結':
-            summary = '你過去的訊息有：\n' + '\n'.join(user_messages[user_id])
+            conversation = user_messages[user_id] + assistant_messages[user_id]
+            summary = generate_summary(conversation)
             msg = TextSendMessage(text=summary)
-            
+
         elif text=='忘記':
             memory.remove(user_id)
             msg = TextSendMessage(text='歷史訊息清除成功')
@@ -223,7 +230,7 @@ def handle_text_message(event):
     except ValueError:
         msg = TextSendMessage(text='Token 無效，請重新註冊，格式為 /註冊 sk-xxxxx')
     except KeyError:
-        msg = TextSendMessage(text='請先註冊 Token，格式為 /註冊 sk-xxxxx')
+        msg = TextSendMessage(text='錯誤')
     except Exception as e:
         memory.remove(user_id)
         if str(e).startswith('Incorrect API key provided'):
