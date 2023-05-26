@@ -294,10 +294,6 @@ def handle_audio_message(event):
             if not is_successful:
                 raise Exception(error_message)
             role, response = get_role_and_content(response)
-            if len(response) > MAX_CHARS:
-                messages = generate_reply_messages(response, user_id)
-                line_bot_api.reply_message(event.reply_token, messages)
-                return 'OK'
             memory.append(user_id, role, response)
             msg = TextSendMessage(text=response)
     except ValueError:
