@@ -9,13 +9,6 @@ from linebot.exceptions import (
 from linebot.models import *
 import os
 import uuid
-import sys
-
-# 將 openpyxl 套件的路徑加入到系統路徑中
-openpyxl_path = os.path.join(os.path.dirname(__file__), 'openpyxl')
-sys.path.insert(0, openpyxl_path)
-
-from openpyxl import Workbook
 
 load_dotenv('.env')
 
@@ -28,7 +21,7 @@ from src.service.youtube import Youtube, YoutubeTranscriptReader
 from src.service.website import Website, WebsiteReader
 from src.mongodb import mongodb
 
-load_dotenv('.env')
+
 
 app = Flask(__name__)
 line_bot_api = LineBotApi(os.getenv('LINE_CHANNEL_ACCESS_TOKEN'))
@@ -48,25 +41,6 @@ user_messages = {}
 assistant_messages = {}
 MAX_CHARS = 150
 user_next_indices = {}  # 追蹤每位用戶已經發送的訊息字數
-place_array = ["關係人","關係人的電話"]
-
-workbook = Workbook()
-worksheet = workbook.active
-
-def save_to_csv(data):
-    csv_path = "data.csv"
-    
-    # 檢查檔案是否存在，若不存在則建立新的檔案並寫入欄位名稱
-    if not os.path.exists(csv_path):
-        with open(csv_path, 'w', newline='') as csvfile:
-            writer = csv.writer(csvfile)
-            writer.writerow(["關係人"])
-    
-    # 將資料寫入 CSV 檔案
-    with open(csv_path, 'a', newline='') as csvfile:
-        writer = csv.writer(csvfile)
-        writer.writerow([data])
-
 
 @app.route("/callback", methods=['POST'])
 def callback():
