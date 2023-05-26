@@ -54,6 +54,9 @@ def callback():
 
 
 @handler.add(MessageEvent, message=TextMessage)
+def generate_summary(conversation):
+    return " ".join(conversation[:10])
+
 def handle_text_message(event):
     global chat
     user_id = event.source.user_id
