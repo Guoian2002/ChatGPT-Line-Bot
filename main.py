@@ -35,7 +35,7 @@ model_management = {}
 api_keys = {}
 chat=True
 place_array=["士林","士林區","大同","大同區","信義","信義區","北投","北投區","文山","文山區","大安","大安區","中正","中正區","內湖","內湖區","松山","松山區","中山","中山區"]
-
+user_states = {}
 
 
 @app.route("/callback", methods=['POST'])
@@ -70,32 +70,34 @@ def handle_text_message(event):
     try:
         
         if text=='emo你在嗎':
-            msg = TextSendMessage(text="我在，有甚麼可以幫您的嗎，以下是您可以使用的指令\n\n指令：\n\n忘記\n👉 Emo會忘記上下文關係，接下來的回答不再跟上文有關係~\n\n請畫\n👉 請畫+你想畫的東西 Emo會在短時間畫給你~\n\n語音輸入\n👉 使用line語音輸入Emo可以直接回覆喔~\n\n其他文字輸入\n👉 Emo直接以文字回覆~",
-                                  
-                                quick_reply=QuickReply(
-                                items=[
-                                    QuickReplyButton(
-                                    action=MessageAction(label="忘記", text="忘記")
-                                    ),
-                                    QuickReplyButton(
-                                    action=MessageAction(label="請畫", text="請畫")
-                                    ),
-                                    QuickReplyButton(
-                                    action=MessageAction(label="總結", text="總結")
-                                    ),
-
-
-
-                                ]                      
-                            )
-                        )
+            msg = TextSendMessage(
+                text="我在，有甚麼可以幫您的嗎，以下是您可以使用的指令\n\n指令：\n\n忘記\n👉 Emo會忘記上下文關係，接下來的回答不再跟上文有關係~\n\n請畫\n👉 請畫+你想畫的東西 Emo會在短時間畫給你~\n\n語音輸入\n👉 使用line語音輸入Emo可以直接回覆喔~\n\n其他文字輸入\n👉 Emo直接以文字回覆~",
+                quick_reply=QuickReply(
+                items=[
+                    QuickReplyButton(
+                    action=MessageAction(label="忘記", text="忘記")
+                    ),
+                    QuickReplyButton(
+                    action=MessageAction(label="請畫", text="請畫")
+                    ),
+                    QuickReplyButton(
+                    action=MessageAction(label="總結", text="總結")
+                    ),
+                ]                      
+            )
+        )
 
         elif text=='忘記':
             memory.remove(user_id)
             msg = TextSendMessage(text='歷史訊息清除成功')
 
-        elif text.startswith('/請畫'):
-            prompt = text[3:].strip()
+        elif text == '請畫':
+            user_states[user_id] = 'drawing'
+            msg = TextSendMessage(text='請輸入你想畫的東西')
+
+        elif user_states.get(user_id) == 'drawing':
+            prompt = text.strip()
+            # 將用戶輸入的資訊儲存下來
             memory.append(user_id, 'user', prompt)
             is_successful, response, error_message = model_management[user_id].image_generations(prompt)
             if not is_successful:
@@ -106,6 +108,9 @@ def handle_text_message(event):
                 preview_image_url=url
             )
             memory.append(user_id, 'assistant', url)
+
+            # 在處理完畫圖後，記得清除該用戶的狀態
+            user_states[user_id] = None
 
         else:
             if text=='開啟自動回覆':
