@@ -10,8 +10,6 @@ from linebot.models import *
 import os
 import uuid
 
-load_dotenv('.env')
-
 from src.models import OpenAIModel
 from src.memory import Memory
 from src.logger import logger
@@ -21,7 +19,7 @@ from src.service.youtube import Youtube, YoutubeTranscriptReader
 from src.service.website import Website, WebsiteReader
 from src.mongodb import mongodb
 
-
+load_dotenv('.env')
 
 app = Flask(__name__)
 line_bot_api = LineBotApi(os.getenv('LINE_CHANNEL_ACCESS_TOKEN'))
@@ -315,7 +313,6 @@ def handle_audio_message(event):
 @app.route("/", methods=['GET'])
 def home():
     return 'Hello World'
-
 
 if __name__ == "__main__":
     if os.getenv('USE_MONGO'):
