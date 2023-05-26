@@ -9,6 +9,8 @@ from linebot.exceptions import (
 from linebot.models import *
 import os
 import uuid
+from gtts import gTTS
+import boto3
 
 from src.models import OpenAIModel
 from src.memory import Memory
@@ -39,6 +41,10 @@ user_messages = {}
 assistant_messages = {}
 MAX_CHARS = 150
 user_next_indices = {}  # 追蹤每位用戶已經發送的訊息字數
+
+s3 = boto3.resource('s3')
+bucket_name = 'your-bucket-name'
+
 
 @app.route("/callback", methods=['POST'])
 def callback():
@@ -295,7 +301,19 @@ def handle_audio_message(event):
                 raise Exception(error_message)
             role, response = get_role_and_content(response)
             memory.append(user_id, role, response)
-            msg = TextSendMessage(text=response)
+            
+            # Text to Speech
+            tts = gTTS(response)
+            output_audio_path = f'{str(uuid.uuid4())}.mp3'
+            tts.save(output_audio_path)
+
+            # Upload to S3
+            s3.meta.client.upload_file(output_audio_path, bucket_name, output_audio_path)
+            audio_url = f"https://{bucket_name}.s3.amazonaws.com/{output_audio_path}"
+
+            # Send the URL as a text message
+            msg = TextSendMessage(text=audio_url)
+
     except ValueError:
         msg = TextSendMessage(text='emo不太瞭解想表達甚麼')
     except KeyError:
@@ -307,6 +325,7 @@ def handle_audio_message(event):
         else:
             msg = TextSendMessage(text=str(e))
     os.remove(input_audio_path)
+    os.remove(output_audio_path)  # Remove the local audio file after uploading to S3
     line_bot_api.reply_message(event.reply_token, msg)
 
 
