@@ -36,6 +36,7 @@ api_keys = {}
 chat=True
 place_array=["士林","士林區","大同","大同區","信義","信義區","北投","北投區","文山","文山區","大安","大安區","中正","中正區","內湖","內湖區","松山","松山區","中山","中山區"]
 user_states = {}
+user_messages = {}
 
 
 @app.route("/callback", methods=['POST'])
@@ -90,6 +91,10 @@ def handle_text_message(event):
             )
         )
 
+        elif text == '總結':
+            summary = '你過去的訊息有：\n' + '\n'.join(user_messages[user_id])
+            msg = TextSendMessage(text=summary)
+            
         elif text=='忘記':
             memory.remove(user_id)
             msg = TextSendMessage(text='歷史訊息清除成功')
