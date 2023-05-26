@@ -1,4 +1,5 @@
 pip install pandas
+
 from dotenv import load_dotenv
 from flask import Flask, request, abort
 from linebot import (
@@ -11,6 +12,8 @@ from linebot.models import *
 import os
 import uuid
 
+import pandas as pd
+
 from src.models import OpenAIModel
 from src.memory import Memory
 from src.logger import logger
@@ -19,8 +22,6 @@ from src.utils import get_role_and_content
 from src.service.youtube import Youtube, YoutubeTranscriptReader
 from src.service.website import Website, WebsiteReader
 from src.mongodb import mongodb
-
-import pandas as pd
 
 load_dotenv('.env')
 
@@ -247,7 +248,8 @@ def handle_text_message(event):
             elif text in place_array:
                 user_states[user_id] = text
                 msg = TextSendMessage(text=f"請輸入{user_states[user_id]}")
-
+                save_to_excel(text)  # 呼叫 save_to_excel 函式儲存資料
+                
             elif chat==True:
                 user_model = model_management[user_id]
                 memory.append(user_id, 'user', text)
