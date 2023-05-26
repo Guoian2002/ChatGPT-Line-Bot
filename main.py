@@ -1,5 +1,3 @@
-
-from openpyxl import Workbook
 from dotenv import load_dotenv
 from flask import Flask, request, abort
 from linebot import (
