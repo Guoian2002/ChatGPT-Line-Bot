@@ -1,4 +1,3 @@
-pip install openpyxl
 
 from openpyxl import Workbook
 from dotenv import load_dotenv
@@ -12,8 +11,15 @@ from linebot.exceptions import (
 from linebot.models import *
 import os
 import uuid
+import sys
 
-import csv
+# 將 openpyxl 套件的路徑加入到系統路徑中
+openpyxl_path = os.path.join(os.path.dirname(__file__), 'openpyxl')
+sys.path.insert(0, openpyxl_path)
+
+from openpyxl import Workbook
+
+load_dotenv('.env')
 
 from src.models import OpenAIModel
 from src.memory import Memory
