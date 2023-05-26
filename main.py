@@ -37,6 +37,7 @@ chat=True
 place_array=["士林","士林區","大同","大同區","信義","信義區","北投","北投區","文山","文山區","大安","大安區","中正","中正區","內湖","內湖區","松山","松山區","中山","中山區"]
 user_states = {}
 user_messages = {}
+assistant_messages = {}
 
 
 @app.route("/callback", methods=['POST'])
@@ -69,6 +70,7 @@ def handle_text_message(event):
     })
     if user_id not in user_messages:
         user_messages[user_id] = []
+
     if user_id not in assistant_messages:
         assistant_messages[user_id] = []
 
