@@ -42,17 +42,27 @@ user_messages = {}
 assistant_messages = {}
 MAX_CHARS = 150
 user_next_indices = {}  # 追蹤每位用戶已經發送的訊息字數
-place_array = ["使用者","關係人","關係人的電話"]
+place_array = ["關係人","關係人的電話"]
 
 workbook = Workbook()
 worksheet = workbook.active
 
-def save_to_excel(user_input):
-    column = get_column_letter(len(worksheet[1]) + 1)
-    worksheet[column + '1'] = "使用者輸入"
-    row = len(worksheet[column]) + 1
-    worksheet[column + str(row)] = user_input
-    workbook.save("data.xlsx")
+def save_to_excel(data):
+    # 假設 Excel 表格名稱為 "data.xlsx"，並儲存到工作目錄中
+    excel_path = "data.xlsx"
+    
+    # 檢查檔案是否存在，若不存在則建立新的 DataFrame
+    if not os.path.exists(excel_path):
+        df = pd.DataFrame(columns=["關係人"])
+    else:
+        df = pd.read_excel(excel_path)
+    
+    # 新增一列資料
+    df = df.append({"關係人": data}, ignore_index=True)
+    
+    # 儲存到 Excel 表格
+    df.to_excel(excel_path, index=False)
+
 
 @app.route("/callback", methods=['POST'])
 def callback():
@@ -235,10 +245,9 @@ def handle_text_message(event):
                 pass
 
             elif text in place_array:
-                # 呼叫儲存到 Excel 表的函式
-                save_to_excel(text)
-                msg = TextSendMessage(text='已儲存到 Excel 表中')
-
+                user_states[user_id] = text
+                msg = TextSendMessage(text=f"請輸入{user_states[user_id]}")
+                
             elif chat==True:
                 user_model = model_management[user_id]
                 memory.append(user_id, 'user', text)
