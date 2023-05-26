@@ -11,6 +11,8 @@ from linebot.models import *
 import os
 import uuid
 
+import pandas as pd
+
 from src.models import OpenAIModel
 from src.memory import Memory
 from src.logger import logger
@@ -40,6 +42,17 @@ user_messages = {}
 assistant_messages = {}
 MAX_CHARS = 150
 user_next_indices = {}  # 追蹤每位用戶已經發送的訊息字數
+place_array = ["使用者","關係人","關係人的電話"]
+
+workbook = Workbook()
+worksheet = workbook.active
+
+def save_to_excel(user_input):
+    column = get_column_letter(len(worksheet[1]) + 1)
+    worksheet[column + '1'] = "使用者輸入"
+    row = len(worksheet[column]) + 1
+    worksheet[column + str(row)] = user_input
+    workbook.save("data.xlsx")
 
 @app.route("/callback", methods=['POST'])
 def callback():
@@ -55,6 +68,7 @@ def callback():
 
 def generate_summary(conversation):
     return " ".join(conversation[:10])
+
 def generate_reply_messages(response, user_id):
     response_len = len(response)
     remaining_response = response
@@ -170,8 +184,10 @@ def handle_text_message(event):
         else:
             if text=='開啟自動回覆':
                 chat=True
+
             elif text=='關閉自動回覆':
                 chat=False
+
             elif text=='我想要查詢心理醫療機構':
                 msg=TextSendMessage(
                     text="請點選想查詢的地區",
@@ -211,11 +227,17 @@ def handle_text_message(event):
                         ]
                     )
                 )
+
             elif text=='我想要做心理測驗':
                 pass
 
             elif text in place_array:
                 pass
+
+            elif text in place_array:
+                # 呼叫儲存到 Excel 表的函式
+                save_to_excel(text)
+                msg = TextSendMessage(text='已儲存到 Excel 表中')
 
             elif chat==True:
                 user_model = model_management[user_id]
