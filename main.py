@@ -11,8 +11,6 @@ from linebot.models import *
 import os
 import uuid
 
-import pandas as pd
-
 from src.models import OpenAIModel
 from src.memory import Memory
 from src.logger import logger
@@ -21,6 +19,8 @@ from src.utils import get_role_and_content
 from src.service.youtube import Youtube, YoutubeTranscriptReader
 from src.service.website import Website, WebsiteReader
 from src.mongodb import mongodb
+
+import pandas as pd
 
 load_dotenv('.env')
 
