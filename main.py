@@ -52,10 +52,10 @@ def callback():
         abort(400)
     return 'OK'
 
-
-@handler.add(MessageEvent, message=TextMessage)
 def generate_summary(conversation):
     return " ".join(conversation[:10])
+
+@handler.add(MessageEvent, message=TextMessage)
 
 def handle_text_message(event):
     global chat
