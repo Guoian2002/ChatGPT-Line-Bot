@@ -221,11 +221,6 @@ def handle_text_message(event):
 
             elif text in place_array:
                 pass
-
-            elif text in place_array:
-                user_states[user_id] = text
-                msg = TextSendMessage(text=f"請輸入{user_states[user_id]}")
-                save_to_excel(text)  # 呼叫 save_to_excel 函式儲存資料
                 
             elif chat==True:
                 user_model = model_management[user_id]
@@ -266,7 +261,7 @@ def handle_text_message(event):
                     
                
     except ValueError:
-        msg = TextSendMessage(text='Token 無效，請重新註冊，格式為 /註冊 sk-xxxxx')
+        msg = TextSendMessage(text='錯誤')
     except KeyError:
         msg = TextSendMessage(text='錯誤')
     except Exception as e:
@@ -301,10 +296,10 @@ def handle_audio_message(event):
             if not is_successful:
                 raise Exception(error_message)
             role, response = get_role_and_content(response)
-            if len(response) > MAX_CHARS:
-                messages = generate_reply_messages(response, user_id)
-                line_bot_api.reply_message(event.reply_token, messages)
-                return 'OK'
+            # if len(response) > MAX_CHARS:
+            #     messages = generate_reply_messages(response, user_id)
+            #     line_bot_api.reply_message(event.reply_token, messages)
+            #     return 'OK'
             memory.append(user_id, role, response)
             msg = TextSendMessage(text=response)
 
