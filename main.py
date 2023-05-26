@@ -83,6 +83,9 @@ def handle_text_message(event):
                     QuickReplyButton(
                     action=MessageAction(label="總結", text="總結")
                     ),
+                    QuickReplyButton(
+                    action=MessageAction(label="語音輸入", text="語音輸入")
+                    ),
                 ]                      
             )
         )
@@ -97,7 +100,6 @@ def handle_text_message(event):
 
         elif user_states.get(user_id) == 'drawing':
             prompt = text.strip()
-            # 將用戶輸入的資訊儲存下來
             memory.append(user_id, 'user', prompt)
             is_successful, response, error_message = model_management[user_id].image_generations(prompt)
             if not is_successful:
@@ -109,8 +111,27 @@ def handle_text_message(event):
             )
             memory.append(user_id, 'assistant', url)
 
-            # 在處理完畫圖後，記得清除該用戶的狀態
             user_states[user_id] = None
+
+        elif text=="語音輸入":
+            msg=TextSendMessage(
+                    text="請選擇輸出方式",
+                    quick_reply=QuickReply(
+                    items=[
+                        QuickReplyButton(
+                            action=MessageAction(label="文字", text="文字")
+                        ),
+                        QuickReplyButton(
+                            action=MessageAction(label="語音", text="語音")
+                        ),
+                    ]
+                )
+            )
+        elif text=="文字":
+            msg=TextSendMessage(text="可以用語音跟emo聊天嘍~")
+
+        elif text=="語音":
+            msg=TextSendMessage(text="近期即將推出，敬請期待")
 
         else:
             if text=='開啟自動回覆':
