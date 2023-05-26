@@ -297,7 +297,7 @@ def handle_audio_message(event):
             memory.append(user_id, role, response)
             msg = TextSendMessage(text=response)
     except ValueError:
-        msg = TextSendMessage(text='請稍等')
+        msg = TextSendMessage(text='emo不太瞭解想表達甚麼')
     except KeyError:
         msg = TextSendMessage(text='請先註冊 Token，格式為 /註冊 sk-xxxxx')
     except Exception as e:
