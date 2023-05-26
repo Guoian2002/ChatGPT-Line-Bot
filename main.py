@@ -1,4 +1,4 @@
-
+pip install pandas
 from dotenv import load_dotenv
 from flask import Flask, request, abort
 from linebot import (
@@ -247,7 +247,7 @@ def handle_text_message(event):
             elif text in place_array:
                 user_states[user_id] = text
                 msg = TextSendMessage(text=f"請輸入{user_states[user_id]}")
-                
+
             elif chat==True:
                 user_model = model_management[user_id]
                 memory.append(user_id, 'user', text)
