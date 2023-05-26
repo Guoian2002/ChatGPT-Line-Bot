@@ -1,7 +1,3 @@
-from gettext import install
-
-
-pip install pandas
 
 from dotenv import load_dotenv
 from flask import Flask, request, abort
@@ -15,7 +11,7 @@ from linebot.models import *
 import os
 import uuid
 
-import pandas as pd
+import csv
 
 from src.models import OpenAIModel
 from src.memory import Memory
@@ -51,21 +47,19 @@ place_array = ["關係人","關係人的電話"]
 workbook = Workbook()
 worksheet = workbook.active
 
-def save_to_excel(data):
-    # 假設 Excel 表格名稱為 "data.xlsx"，並儲存到工作目錄中
-    excel_path = "data.xlsx"
+def save_to_csv(data):
+    csv_path = "data.csv"
     
-    # 檢查檔案是否存在，若不存在則建立新的 DataFrame
-    if not os.path.exists(excel_path):
-        df = pd.DataFrame(columns=["關係人"])
-    else:
-        df = pd.read_excel(excel_path)
+    # 檢查檔案是否存在，若不存在則建立新的檔案並寫入欄位名稱
+    if not os.path.exists(csv_path):
+        with open(csv_path, 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerow(["關係人"])
     
-    # 新增一列資料
-    df = df.append({"關係人": data}, ignore_index=True)
-    
-    # 儲存到 Excel 表格
-    df.to_excel(excel_path, index=False)
+    # 將資料寫入 CSV 檔案
+    with open(csv_path, 'a', newline='') as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerow([data])
 
 
 @app.route("/callback", methods=['POST'])
