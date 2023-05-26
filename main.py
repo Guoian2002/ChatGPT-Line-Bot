@@ -38,6 +38,7 @@ place_array=["士林","士林區","大同","大同區","信義","信義區","北
 user_states = {}
 user_messages = {}
 assistant_messages = {}
+MAX_CHARS = 100
 
 
 @app.route("/callback", methods=['POST'])
@@ -54,6 +55,19 @@ def callback():
 
 def generate_summary(conversation):
     return " ".join(conversation[:10])
+def generate_reply_messages(response, user_id):
+    response_len = len(response)
+    remaining_response = response
+    messages = []
+    while response_len > MAX_CHARS:
+        split_index = remaining_response.rfind(' ', 0, MAX_CHARS)
+        current_message = remaining_response[:split_index]
+        remaining_response = remaining_response[split_index + 1:]
+        response_len = len(remaining_response)
+        messages.append(TextSendMessage(text=current_message, quick_reply=QuickReply(items=[QuickReplyButton(action=MessageAction(label="繼續", text="繼續"))])))
+    messages.append(TextSendMessage(text=remaining_response))
+    user_next_indices[user_id] = len(user_messages[user_id])
+    return messages
 
 @handler.add(MessageEvent, message=TextMessage)
 
@@ -78,6 +92,9 @@ def handle_text_message(event):
         assistant_messages[user_id] = []
 
     user_messages[user_id].append(text)
+
+    if user_id not in user_next_indices:
+        user_next_indices[user_id] = 0
 
     try:
         
@@ -230,8 +247,14 @@ def handle_text_message(event):
                     if not is_successful:
                         raise Exception(error_message)
                     role, response = get_role_and_content(response)
-                    msg = TextSendMessage(text=response)
+                    if len(response) > MAX_CHARS:
+                        messages = generate_reply_messages(response, user_id)
+                        line_bot_api.reply_message(event.reply_token, messages)
+                        return 'OK'
                 memory.append(user_id, role, response)
+                msg = TextSendMessage(text=response)
+                    
+               
     except ValueError:
         msg = TextSendMessage(text='Token 無效，請重新註冊，格式為 /註冊 sk-xxxxx')
     except KeyError:
