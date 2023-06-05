@@ -26,7 +26,7 @@ handler = WebhookHandler(os.getenv('LINE_CHANNEL_SECRET'))
 storage = None
 youtube = Youtube(step=4)
 website = Website()
-a = 2
+a = 200
 
 memory = Memory(system_message=os.getenv(
     'SYSTEM_MESSAGE'), memory_message_count=2)
