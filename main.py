@@ -11,6 +11,8 @@ from linebot.models import *
 import os
 import uuid
 
+import re
+
 from src.models import OpenAIModel
 from src.memory import Memory
 from src.logger import logger
@@ -55,17 +57,35 @@ def callback():
 
 def generate_summary(conversation):
     return " ".join(conversation[:10])
+
+def split_bullet_points(text):
+    # 透過正規表示式將列點的部分分開
+    points = re.split(r'\s*\d+\.\s*', text)
+    # 去除第一個元素，因為在第一個列點之前的部分會是空字串
+    return points[1:]
+
+
 def generate_reply_messages(response, user_id):
-    response_len = len(response)
-    remaining_response = response
     messages = []
-    while response_len > MAX_CHARS:
-        split_index = remaining_response.rfind(' ', 0, MAX_CHARS)
-        current_message = remaining_response[:split_index]
-        remaining_response = remaining_response[split_index + 1:]
-        response_len = len(remaining_response)
-        messages.append(TextSendMessage(text=current_message, quick_reply=QuickReply(items=[QuickReplyButton(action=MessageAction(label="繼續", text="繼續"))])))
-    messages.append(TextSendMessage(text=remaining_response))
+    
+    # 檢查文字是否為列點式的格式
+    if response.startswith('1. '):
+        parts = split_bullet_points(response)
+        for part in parts:
+            messages.append(TextSendMessage(text=part, quick_reply=QuickReply(items=[QuickReplyButton(action=MessageAction(label="繼續", text="繼續"))])))
+    else:
+        response_len = len(response)
+        remaining_response = response
+        
+        while response_len > MAX_CHARS:
+            split_index = remaining_response.rfind(' ', 0, MAX_CHARS)
+            current_message = remaining_response[:split_index]
+            remaining_response = remaining_response[split_index + 1:]
+            response_len = len(remaining_response)
+            messages.append(TextSendMessage(text=current_message, quick_reply=QuickReply(items=[QuickReplyButton(action=MessageAction(label="繼續", text="繼續"))])))
+        
+        messages.append(TextSendMessage(text=remaining_response))
+    
     user_next_indices[user_id] = len(user_messages[user_id])
     return messages
 
