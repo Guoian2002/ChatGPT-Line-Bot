@@ -1,3 +1,4 @@
+
 from dotenv import load_dotenv
 from flask import Flask, request, abort
 from linebot import (
@@ -9,8 +10,6 @@ from linebot.exceptions import (
 from linebot.models import *
 import os
 import uuid
-from gtts import gTTS
-import boto3
 
 from src.models import OpenAIModel
 from src.memory import Memory
@@ -42,10 +41,6 @@ assistant_messages = {}
 MAX_CHARS = 150
 user_next_indices = {}  # 追蹤每位用戶已經發送的訊息字數
 
-s3 = boto3.resource('s3')
-bucket_name = 'your-bucket-name'
-
-
 @app.route("/callback", methods=['POST'])
 def callback():
     signature = request.headers['X-Line-Signature']
@@ -60,7 +55,6 @@ def callback():
 
 def generate_summary(conversation):
     return " ".join(conversation[:10])
-
 def generate_reply_messages(response, user_id):
     response_len = len(response)
     remaining_response = response
@@ -106,7 +100,7 @@ def handle_text_message(event):
         
         if text=='emo你在嗎':
             msg = TextSendMessage(
-                text="我在，有甚麼可以幫您的嗎，以下是您可以使用的指令\n\n指令：\n\n忘記\n👉 Emo會忘記上下文關係，接下來的回答不再跟上文有關係~\n\n請畫\n👉 請畫+你想畫的東西 Emo會在短時間畫給你~\n\n語音輸出\n👉 使用line語音輸入Emo可以直接回覆喔~\n\n其他文字輸入\n👉 Emo直接以文字回覆~",
+                text="我在，有甚麼可以幫您的嗎，以下是您可以使用的指令\n\n指令：\n\n忘記\n👉 Emo會忘記上下文關係，接下來的回答不再跟上文有關係~\n\n請畫\n👉 請畫+你想畫的東西 Emo會在短時間畫給你~\n\n語音輸入\n👉 使用line語音輸入Emo可以直接回覆喔~\n\n其他文字輸入\n👉 Emo直接以文字回覆~",
                 quick_reply=QuickReply(
                 items=[
                     QuickReplyButton(
@@ -119,7 +113,7 @@ def handle_text_message(event):
                     action=MessageAction(label="總結", text="總結")
                     ),
                     QuickReplyButton(
-                    action=MessageAction(label="語音輸出", text="語音輸出")
+                    action=MessageAction(label="語音輸入", text="語音輸入")
                     ),
                 ]                      
             )
@@ -153,7 +147,7 @@ def handle_text_message(event):
 
             user_states[user_id] = None
 
-        elif text=="語音輸出":
+        elif text=="語音輸入":
             msg=TextSendMessage(
                     text="請選擇輸出方式",
                     quick_reply=QuickReply(
@@ -176,10 +170,8 @@ def handle_text_message(event):
         else:
             if text=='開啟自動回覆':
                 chat=True
-
             elif text=='關閉自動回覆':
                 chat=False
-
             elif text=='我想要查詢心理醫療機構':
                 msg=TextSendMessage(
                     text="請點選想查詢的地區",
@@ -219,13 +211,12 @@ def handle_text_message(event):
                         ]
                     )
                 )
-
             elif text=='我想要做心理測驗':
                 pass
 
             elif text in place_array:
                 pass
-                
+
             elif chat==True:
                 user_model = model_management[user_id]
                 memory.append(user_id, 'user', text)
@@ -301,21 +292,9 @@ def handle_audio_message(event):
                 raise Exception(error_message)
             role, response = get_role_and_content(response)
             memory.append(user_id, role, response)
-            
-            # Text to Speech
-            tts = gTTS(response)
-            output_audio_path = f'{str(uuid.uuid4())}.mp3'
-            tts.save(output_audio_path)
-
-            # Upload to S3
-            s3.meta.client.upload_file(output_audio_path, bucket_name, output_audio_path)
-            audio_url = f"https://{bucket_name}.s3.amazonaws.com/{output_audio_path}"
-
-            # Send the URL as a text message
-            msg = TextSendMessage(text=audio_url)
-
+            msg = TextSendMessage(text=response)
     except ValueError:
-        msg = TextSendMessage(text='emo不太瞭解想表達甚麼')
+        msg = TextSendMessage(text='請先註冊你的 API Token，格式為 /註冊 [API TOKEN]')
     except KeyError:
         msg = TextSendMessage(text='請先註冊 Token，格式為 /註冊 sk-xxxxx')
     except Exception as e:
@@ -325,7 +304,6 @@ def handle_audio_message(event):
         else:
             msg = TextSendMessage(text=str(e))
     os.remove(input_audio_path)
-    os.remove(output_audio_path)  # Remove the local audio file after uploading to S3
     line_bot_api.reply_message(event.reply_token, msg)
 
 
@@ -333,7 +311,13 @@ def handle_audio_message(event):
 def home():
     return 'Hello World'
 
+
 if __name__ == "__main__":
+    if os.getenv('USE_MONGO'):
+        mongodb.connect_to_database()
+        storage = Storage(MongoStorage(mongodb.db))
+    else:
+        storage = Storage(FileStorage('db.json'))
     try:
         data = storage.load()
         for user_id in data.keys():
@@ -341,8 +325,3 @@ if __name__ == "__main__":
     except FileNotFoundError:
         pass
     app.run(host='0.0.0.0', port=8080)
-
-<<<<<<< HEAD
-
-=======
->>>>>>> test
