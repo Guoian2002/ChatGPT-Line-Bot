@@ -334,11 +334,6 @@ def home():
     return 'Hello World'
 
 if __name__ == "__main__":
-    if os.getenv('USE_MONGO'):
-        mongodb.connect_to_database()
-        storage = Storage(MongoStorage(mongodb.db))
-    else:
-        storage = Storage(FileStorage('db.json'))
     try:
         data = storage.load()
         for user_id in data.keys():
