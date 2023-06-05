@@ -1,3 +1,11 @@
+from src.mongodb import mongodb
+from src.service.website import Website, WebsiteReader
+from src.service.youtube import Youtube, YoutubeTranscriptReader
+from src.utils import get_role_and_content
+from src.storage import Storage, FileStorage, MongoStorage
+from src.logger import logger
+from src.memory import Memory
+from src.models import OpenAIModel
 from dotenv import load_dotenv
 from flask import Flask, request, abort
 from linebot import (
@@ -12,15 +20,6 @@ import uuid
 
 import re
 a = 3
-from src.models import OpenAIModel
-from src.memory import Memory
-from src.logger import logger
-from src.storage import Storage, FileStorage, MongoStorage
-from src.utils import get_role_and_content
-from src.service.youtube import Youtube, YoutubeTranscriptReader
-from src.service.website import Website, WebsiteReader
-from src.mongodb import mongodb
-
 load_dotenv('.env')
 
 app = Flask(__name__)
