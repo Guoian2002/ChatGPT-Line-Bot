@@ -62,6 +62,9 @@ def generate_summary(conversation):
     return " ".join(conversation[:10])
 
 
+# 控制輸出的字數
+
+
 def generate_reply_messages(response, user_id):
     response_len = len(response)
     remaining_response = response
