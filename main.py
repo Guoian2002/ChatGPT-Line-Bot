@@ -65,6 +65,9 @@ def split_bullet_points(text):
     return points[1:]
 
 
+# 控制輸出的字數
+
+
 def generate_reply_messages(response, user_id):
     messages = []
     
