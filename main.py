@@ -11,6 +11,7 @@ from linebot.models import *
 import os
 import uuid
 
+
 from src.models import OpenAIModel
 from src.memory import Memory
 from src.logger import logger
