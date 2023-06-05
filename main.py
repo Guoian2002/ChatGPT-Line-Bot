@@ -138,7 +138,10 @@ def handle_text_message(event):
                 ]                      
             )
         )
-            
+              
+
+
+              
 
         elif text == '總結':
             conversation = user_messages[user_id] + assistant_messages[user_id]
