@@ -32,16 +32,19 @@ youtube = Youtube(step=4)
 website = Website()
 
 
-memory = Memory(system_message=os.getenv('SYSTEM_MESSAGE'), memory_message_count=2)
+memory = Memory(system_message=os.getenv(
+    'SYSTEM_MESSAGE'), memory_message_count=2)
 model_management = {}
 api_keys = {}
-chat=True
-place_array=["士林","士林區","大同","大同區","信義","信義區","北投","北投區","文山","文山區","大安","大安區","中正","中正區","內湖","內湖區","松山","松山區","中山","中山區"]
+chat = True
+place_array = ["士林", "士林區", "大同", "大同區", "信義", "信義區", "北投", "北投區", "文山",
+               "文山區", "大安", "大安區", "中正", "中正區", "內湖", "內湖區", "松山", "松山區", "中山", "中山區"]
 user_states = {}
 user_messages = {}
 assistant_messages = {}
 MAX_CHARS = 150
 user_next_indices = {}  # 追蹤每位用戶已經發送的訊息字數
+
 
 @app.route("/callback", methods=['POST'])
 def callback():
@@ -55,8 +58,10 @@ def callback():
         abort(400)
     return 'OK'
 
+
 def generate_summary(conversation):
     return " ".join(conversation[:10])
+
 
 def split_bullet_points(text):
     # 透過正規表示式將列點的部分分開
@@ -70,30 +75,32 @@ def split_bullet_points(text):
 
 def generate_reply_messages(response, user_id):
     messages = []
-    
+
     # 檢查文字是否為列點式的格式
     if response.startswith('1. '):
         parts = split_bullet_points(response)
         for part in parts:
-            messages.append(TextSendMessage(text=part, quick_reply=QuickReply(items=[QuickReplyButton(action=MessageAction(label="繼續", text="繼續"))])))
+            messages.append(TextSendMessage(text=part, quick_reply=QuickReply(
+                items=[QuickReplyButton(action=MessageAction(label="繼續", text="繼續"))])))
     else:
         response_len = len(response)
         remaining_response = response
-        
+
         while response_len > MAX_CHARS:
             split_index = remaining_response.rfind(' ', 0, MAX_CHARS)
             current_message = remaining_response[:split_index]
             remaining_response = remaining_response[split_index + 1:]
             response_len = len(remaining_response)
-            messages.append(TextSendMessage(text=current_message, quick_reply=QuickReply(items=[QuickReplyButton(action=MessageAction(label="繼續", text="繼續"))])))
-        
+            messages.append(TextSendMessage(text=current_message, quick_reply=QuickReply(
+                items=[QuickReplyButton(action=MessageAction(label="繼續", text="繼續"))])))
+
         messages.append(TextSendMessage(text=remaining_response))
-    
+
     user_next_indices[user_id] = len(user_messages[user_id])
     return messages
 
-@handler.add(MessageEvent, message=TextMessage)
 
+@handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
     global chat
     user_id = event.source.user_id
@@ -120,35 +127,34 @@ def handle_text_message(event):
         user_next_indices[user_id] = 0
 
     try:
-        
-        if text=='emo你在嗎':
+
+        if text == 'emo你在嗎':
             msg = TextSendMessage(
                 text="我在，有甚麼可以幫您的嗎，以下是您可以使用的指令\n\n指令：\n\n忘記\n👉 Emo會忘記上下文關係，接下來的回答不再跟上文有關係~\n\n請畫\n👉 請畫+你想畫的東西 Emo會在短時間畫給你~\n\n語音輸入\n👉 使用line語音輸入Emo可以直接回覆喔~\n\n其他文字輸入\n👉 Emo直接以文字回覆~",
                 quick_reply=QuickReply(
-                items=[
-                    QuickReplyButton(
-                    action=MessageAction(label="忘記", text="忘記")
-                    ),
-                    QuickReplyButton(
-                    action=MessageAction(label="請畫", text="請畫")
-                    ),
-                    QuickReplyButton(
-                    action=MessageAction(label="總結", text="總結")
-                    ),
-                    QuickReplyButton(
-                    action=MessageAction(label="語音輸入", text="語音輸入")
-                    ),
-                ]                      
+                    items=[
+                        QuickReplyButton(
+                            action=MessageAction(label="忘記", text="忘記")
+                        ),
+                        QuickReplyButton(
+                            action=MessageAction(label="請畫", text="請畫")
+                        ),
+                        QuickReplyButton(
+                            action=MessageAction(label="總結", text="總結")
+                        ),
+                        QuickReplyButton(
+                            action=MessageAction(label="語音輸入", text="語音輸入")
+                        ),
+                    ]
+                )
             )
-        )
-            
-            
+
         elif text == '總結':
             conversation = user_messages[user_id] + assistant_messages[user_id]
             summary = generate_summary(conversation)
             msg = TextSendMessage(text=summary)
 
-        elif text=='忘記':
+        elif text == '忘記':
             memory.remove(user_id)
             msg = TextSendMessage(text='歷史訊息清除成功')
 
@@ -159,7 +165,8 @@ def handle_text_message(event):
         elif user_states.get(user_id) == 'drawing':
             prompt = text.strip()
             memory.append(user_id, 'user', prompt)
-            is_successful, response, error_message = model_management[user_id].image_generations(prompt)
+            is_successful, response, error_message = model_management[user_id].image_generations(
+                prompt)
             if not is_successful:
                 raise Exception(error_message)
             url = response['data'][0]['url']
@@ -171,10 +178,10 @@ def handle_text_message(event):
 
             user_states[user_id] = None
 
-        elif text=="語音輸入":
-            msg=TextSendMessage(
-                    text="請選擇輸出方式",
-                    quick_reply=QuickReply(
+        elif text == "語音輸入":
+            msg = TextSendMessage(
+                text="請選擇輸出方式",
+                quick_reply=QuickReply(
                     items=[
                         QuickReplyButton(
                             action=MessageAction(label="文字", text="文字")
@@ -185,73 +192,76 @@ def handle_text_message(event):
                     ]
                 )
             )
-        elif text=="文字":
-            msg=TextSendMessage(text="可以用語音跟emo聊天嘍~")
+        elif text == "文字":
+            msg = TextSendMessage(text="可以用語音跟emo聊天嘍~")
 
-        elif text=="語音":
-            msg=TextSendMessage(text="近期即將推出，敬請期待")
+        elif text == "語音":
+            msg = TextSendMessage(text="近期即將推出，敬請期待")
 
         else:
-            if text=='開啟自動回覆':
-                chat=True
-            elif text=='關閉自動回覆':
-                chat=False
-            elif text=='我想要查詢心理醫療機構':
-                msg=TextSendMessage(
+            if text == '開啟自動回覆':
+                chat = True
+            elif text == '關閉自動回覆':
+                chat = False
+            elif text == '我想要查詢心理醫療機構':
+                msg = TextSendMessage(
                     text="請點選想查詢的地區",
                     quick_reply=QuickReply(
-                    items=[
-                        QuickReplyButton(
-                            action=MessageAction(label="士林區", text="士林區")
-                        ),
-                        QuickReplyButton(
-                            action=MessageAction(label="大同區", text="大同區")
-                        ),
-                        QuickReplyButton(
-                            action=MessageAction(label="信義區", text="信義區")
-                        ),
-                        QuickReplyButton(
-                            action=MessageAction(label="北投區", text="北投區")
-                        ),
-                        QuickReplyButton(
-                            action=MessageAction(label="文山區", text="文山區")
-                        ),
-                        QuickReplyButton(
-                            action=MessageAction(label="大安區", text="大安區")
-                        ),
-                        QuickReplyButton(
-                            action=MessageAction(label="中正區", text="中正區")
-                        ),
-                        QuickReplyButton(
-                            action=MessageAction(label="內湖區", text="內湖區")
-                        ),
-                        QuickReplyButton(
-                            action=MessageAction(label="松山區", text="松山區")
-                        ),
-                        QuickReplyButton(
-                            action=MessageAction(label="中山區", text="中山區")
-                        )
+                        items=[
+                            QuickReplyButton(
+                                action=MessageAction(label="士林區", text="士林區")
+                            ),
+                            QuickReplyButton(
+                                action=MessageAction(label="大同區", text="大同區")
+                            ),
+                            QuickReplyButton(
+                                action=MessageAction(label="信義區", text="信義區")
+                            ),
+                            QuickReplyButton(
+                                action=MessageAction(label="北投區", text="北投區")
+                            ),
+                            QuickReplyButton(
+                                action=MessageAction(label="文山區", text="文山區")
+                            ),
+                            QuickReplyButton(
+                                action=MessageAction(label="大安區", text="大安區")
+                            ),
+                            QuickReplyButton(
+                                action=MessageAction(label="中正區", text="中正區")
+                            ),
+                            QuickReplyButton(
+                                action=MessageAction(label="內湖區", text="內湖區")
+                            ),
+                            QuickReplyButton(
+                                action=MessageAction(label="松山區", text="松山區")
+                            ),
+                            QuickReplyButton(
+                                action=MessageAction(label="中山區", text="中山區")
+                            )
 
                         ]
                     )
                 )
-            elif text=='我想要做心理測驗':
+            elif text == '我想要做心理測驗':
                 pass
 
             elif text in place_array:
                 pass
 
-            elif chat==True:
+            elif chat == True:
                 user_model = model_management[user_id]
                 memory.append(user_id, 'user', text)
                 url = website.get_url_from_text(text)
                 if url:
                     if youtube.retrieve_video_id(text):
-                        is_successful, chunks, error_message = youtube.get_transcript_chunks(youtube.retrieve_video_id(text))
+                        is_successful, chunks, error_message = youtube.get_transcript_chunks(
+                            youtube.retrieve_video_id(text))
                         if not is_successful:
                             raise Exception(error_message)
-                        youtube_transcript_reader = YoutubeTranscriptReader(user_model, os.getenv('OPENAI_MODEL_ENGINE'))
-                        is_successful, response, error_message = youtube_transcript_reader.summarize(chunks)
+                        youtube_transcript_reader = YoutubeTranscriptReader(
+                            user_model, os.getenv('OPENAI_MODEL_ENGINE'))
+                        is_successful, response, error_message = youtube_transcript_reader.summarize(
+                            chunks)
                         if not is_successful:
                             raise Exception(error_message)
                         role, response = get_role_and_content(response)
@@ -260,14 +270,17 @@ def handle_text_message(event):
                         chunks = website.get_content_from_url(url)
                         if len(chunks) == 0:
                             raise Exception('無法撈取此網站文字')
-                        website_reader = WebsiteReader(user_model, os.getenv('OPENAI_MODEL_ENGINE'))
-                        is_successful, response, error_message = website_reader.summarize(chunks)
+                        website_reader = WebsiteReader(
+                            user_model, os.getenv('OPENAI_MODEL_ENGINE'))
+                        is_successful, response, error_message = website_reader.summarize(
+                            chunks)
                         if not is_successful:
                             raise Exception(error_message)
                         role, response = get_role_and_content(response)
                         msg = TextSendMessage(text=response)
                 else:
-                    is_successful, response, error_message = user_model.chat_completions(memory.get(user_id), os.getenv('OPENAI_MODEL_ENGINE'))
+                    is_successful, response, error_message = user_model.chat_completions(
+                        memory.get(user_id), os.getenv('OPENAI_MODEL_ENGINE'))
                     if not is_successful:
                         raise Exception(error_message)
                     role, response = get_role_and_content(response)
@@ -277,8 +290,7 @@ def handle_text_message(event):
                         return 'OK'
                 memory.append(user_id, role, response)
                 msg = TextSendMessage(text=response)
-                    
-               
+
     except ValueError:
         msg = TextSendMessage(text='Token 無效，請重新註冊，格式為 /註冊 sk-xxxxx')
     except KeyError:
@@ -307,11 +319,13 @@ def handle_audio_message(event):
         if not model_management.get(user_id):
             raise ValueError('Invalid API token')
         else:
-            is_successful, response, error_message = model_management[user_id].audio_transcriptions(input_audio_path, 'whisper-1')
+            is_successful, response, error_message = model_management[user_id].audio_transcriptions(
+                input_audio_path, 'whisper-1')
             if not is_successful:
                 raise Exception(error_message)
             memory.append(user_id, 'user', response['text'])
-            is_successful, response, error_message = model_management[user_id].chat_completions(memory.get(user_id), 'gpt-3.5-turbo')
+            is_successful, response, error_message = model_management[user_id].chat_completions(
+                memory.get(user_id), 'gpt-3.5-turbo')
             if not is_successful:
                 raise Exception(error_message)
             role, response = get_role_and_content(response)
@@ -349,4 +363,3 @@ if __name__ == "__main__":
     except FileNotFoundError:
         pass
     app.run(host='0.0.0.0', port=8080)
-    
