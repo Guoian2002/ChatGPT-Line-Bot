@@ -11,7 +11,7 @@ import os
 import uuid
 
 import re
-
+a = 0
 from src.models import OpenAIModel
 from src.memory import Memory
 from src.logger import logger
