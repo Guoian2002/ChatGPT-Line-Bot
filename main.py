@@ -19,6 +19,7 @@ import os
 import uuid
 import psycopg2
 from urllib.parse import urlparse, unquote
+from gtts import gTTS
 
 import re
 load_dotenv('.env')
@@ -146,6 +147,12 @@ def get_trusted_person(user_id):
 
     return result
 
+def synthesize_text_to_speech(text, language='zh-tw'):
+    tts = gTTS(text=text, lang=language)  # 這裡的 'zh-tw' 是代表繁體中文，你可以根據需求調整
+    output_audio_path = f"{str(uuid.uuid4())}.mp3"  # Google TTS 生成的音頻文件是 MP3 格式
+    tts.save(output_audio_path)
+    return output_audio_path
+
 
 
 def generate_summary(conversation):
@@ -160,8 +167,6 @@ def split_bullet_points(text):
 
 
 # 控制輸出的字數
-
-
 def generate_reply_messages(response, user_id):
     messages = []
 
@@ -372,13 +377,13 @@ def handle_text_message(event):
 
 
         else:
-            if text == '開啟自動回覆':
+            if text == '開始聊天':
                 chat = True
-                msg = TextSendMessage(text="已開啟自動回復")
+                msg = TextSendMessage(text="已開啟聊天")
 
-            elif text == '關閉自動回覆':
+            elif text == '關閉聊天':
                 chat = False
-                msg = TextSendMessage(text="已關閉自動回復")
+                msg = TextSendMessage(text="已關閉聊天")
 
             elif text == '我想要查詢心理醫療機構':
                 msg = TextSendMessage(
