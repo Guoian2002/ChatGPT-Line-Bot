@@ -99,6 +99,7 @@ def get_data_from_db( dis ):
 user_states = {}
 
 def insert_into_db(user_id, relation):
+    DATABASE_URL = os.environ['DATABASE_URL']
     params = urlparse(unquote(DATABASE_URL))
     conn = psycopg2.connect(
         dbname=params.path[1:],
@@ -115,7 +116,7 @@ def insert_into_db(user_id, relation):
 
     cur.close()
     conn.close()
-    
+
 
 def generate_summary(conversation):
     return " ".join(conversation[:10])
