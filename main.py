@@ -477,6 +477,7 @@ def handle_text_message(event):
             msg = TextSendMessage(text=str(e))
     line_bot_api.reply_message(event.reply_token, msg)
 
+from linebot.models import AudioSendMessage
 
 @handler.add(MessageEvent, message=AudioMessage)
 def handle_audio_message(event):
@@ -498,9 +499,16 @@ def handle_audio_message(event):
             is_successful, response, error_message = model_management[user_id].chat_completions(memory.get(user_id), 'gpt-3.5-turbo')
             if not is_successful:
                 raise Exception(error_message)
-            role, response = get_role_and_content(response)
-            memory.append(user_id, role, response)
-            msg = TextSendMessage(text=response)
+            role, response_text = get_role_and_content(response)
+            memory.append(user_id, role, response_text)
+            
+            # 新增的語音合成和發送語音訊息的功能
+            audio_file = synthesize_text_to_speech(response_text)
+            audio_url = upload_to_cloud_storage(audio_file)
+            msg = AudioSendMessage(
+                original_content_url=audio_url,
+                duration=240000  # 音訊長度，以毫秒為單位
+            )
     except ValueError:
         msg = TextSendMessage(text='請先註冊你的 API Token，格式為 /註冊 [API TOKEN]')
     except KeyError:
@@ -513,6 +521,7 @@ def handle_audio_message(event):
             msg = TextSendMessage(text=str(e))
     os.remove(input_audio_path)
     line_bot_api.reply_message(event.reply_token, msg)
+
 
 @app.route("/", methods=['GET'])
 def home():
