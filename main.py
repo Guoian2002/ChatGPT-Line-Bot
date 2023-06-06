@@ -74,7 +74,7 @@ def get_data_from_db( dis ):
 
         # 執行 SQL 查詢並獲取資料
         cur = conn.cursor()
-        cur.execute("   SELECT district,name,address,phone FROM heart WHERE district = '"+ dis +"';")
+        cur.execute("   SELECT name,address,phone FROM heart WHERE district = '"+ dis +"';")
         rows = cur.fetchall()
 
         # 檢查查詢結果是否為空
