@@ -28,7 +28,7 @@ import re
 # credentials_dict = json.loads(os.environ['GOOGLE_APPLICATION_CREDENTIALS'])
 # credentials = service_account.Credentials.from_service_account_info(credentials_dict)
 
-storage_client = storage.Client(credentials=credentials)
+# storage_client = storage.Client(credentials=credentials)
 load_dotenv('.env')
 app = Flask(__name__)
 line_bot_api = LineBotApi(os.getenv('LINE_CHANNEL_ACCESS_TOKEN'))
