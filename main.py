@@ -80,9 +80,8 @@ def get_data_from_db( dis ):
         # 檢查查詢結果是否為空
         if rows:
             message = str(rows) 
-            result = message.replace("[", "").replace("]", "").replace("),", "")
-            result = result.split("\n")
-            result = '\n'.join(result)
+            result = message.replace("[", "").replace("]", "").replace("(", "").replace(")", "").replace(",", "/n")
+            #result = '\n'.join(result)
             if len(message) <= 2000:  # 檢查消息長度
                 return result
             else:
