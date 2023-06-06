@@ -114,6 +114,25 @@ def insert_into_db(user_id, relation, phone_number):
     cur.close()
     conn.close()
 
+def get_trusted_person(user_id):
+    params = urlparse(unquote(DATABASE_URL))
+    conn = psycopg2.connect(
+        dbname=params.path[1:],
+        user=params.username,
+        password=params.password,
+        host=params.hostname,
+        port=params.port
+    )
+    cur = conn.cursor()
+    cur.execute("SELECT relation, phone_number FROM friend WHERE user_id = %s", (user_id,))
+    result = cur.fetchone()
+
+    cur.close()
+    conn.close()
+
+    return result
+
+
 
 def generate_summary(conversation):
     return " ".join(conversation[:10])
@@ -195,7 +214,13 @@ def handle_text_message(event):
             user_states[user_id] = None  # reset state
             user_relations[user_id] = None  # clear stored relation
             msg = TextSendMessage(text="您的親朋好友關係及電話已經成功記錄。現在可以跟emo聊天了。")
-    
+
+        elif text == '我需要求助':
+            trusted_person = get_trusted_person(user_id)
+            if trusted_person is not None:
+                relation, phone_number = trusted_person
+                msg = TextSendMessage(text=f"你可以尋找你信任的 {relation}，電話號碼是 {phone_number}。")
+                line_bot_api.reply_message(event.reply_token, msg)
 
         elif text == 'emo你在嗎':
             msg = TextSendMessage(
