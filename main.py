@@ -18,6 +18,7 @@ from linebot.models import *
 import os
 import uuid
 import psycopg2
+from urllib.parse import urlparse, unquote
 
 import re
 load_dotenv('.env')
@@ -57,18 +58,29 @@ def callback():
 
 
 def get_data_from_db():
+    # 獲取環境變數中的 PostgreSQL 連接 URI
+    DATABASE_URL = os.environ['DATABASE_URL']
+
+    # 使用 urlparse 解析連接 URI
+    params = urlparse(unquote(DATABASE_URL))
+
+    # 建立連接
     conn = psycopg2.connect(
-        host="EmoChatTest:localhost",
-        database="test",
-        user="postgres",
-        password="q20021031q"
+        dbname=params.path[1:],
+        user=params.username,
+        password=params.password,
+        host=params.hostname,
+        port=params.port
     )
 
+    # 執行 SQL 查詢並獲取資料
     cur = conn.cursor()
-    cur.execute("SELECT name FROM test")
+    cur.execute("select name from test;")
     rows = cur.fetchall()
+
     cur.close()
     conn.close()
+
     return rows
 
 
