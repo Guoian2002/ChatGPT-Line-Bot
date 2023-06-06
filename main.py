@@ -115,6 +115,7 @@ def insert_into_db(user_id, relation):
 
     cur.close()
     conn.close()
+    
 
 def generate_summary(conversation):
     return " ".join(conversation[:10])
