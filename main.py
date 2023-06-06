@@ -377,7 +377,7 @@ def handle_text_message(event):
 
 
         else:
-            if text == '開始聊天':
+            if text == '開啟聊天':
                 chat = True
                 msg = TextSendMessage(text="已開啟聊天")
 
