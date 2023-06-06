@@ -28,7 +28,6 @@ handler = WebhookHandler(os.getenv('LINE_CHANNEL_SECRET'))
 storage = None
 youtube = Youtube(step=4)
 website = Website()
-a = 200
 
 memory = Memory(system_message=os.getenv(
     'SYSTEM_MESSAGE'), memory_message_count=2)
@@ -75,8 +74,9 @@ def get_data_from_db():
 
     # 執行 SQL 查詢並獲取資料
     cur = conn.cursor()
-    cur.execute("select name from test;")
+    cur.execute("select name from test")
     rows = cur.fetchall()
+    print(rows)
 
     cur.close()
     conn.close()
