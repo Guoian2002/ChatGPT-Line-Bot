@@ -75,7 +75,7 @@ def get_data_from_db( dis ):
 
         # 執行 SQL 查詢並獲取資料
         cur = conn.cursor()
-        cur.execute("select "+dis+" from test")
+        cur.execute("   SELECT district,name,address,phone FROM heart WHERE district = '中山區';")
         rows = cur.fetchall()
 
         # 檢查查詢結果是否為空
@@ -237,11 +237,11 @@ def handle_text_message(event):
         elif text == "語音":
             msg = TextSendMessage(text="近期即將推出，敬請期待")
         
-        elif text=="媽的":
-            tmp=get_data_from_db( 'name' )
-            msg = TextSendMessage(text=tmp)
+        #elif text=="媽的":
+        #    tmp=get_data_from_db( 'name' )
+        #    msg = TextSendMessage(text=tmp)
 
-        elif text == '中山區':
+        elif text == '媽的':
             tmp=get_data_from_db( '中山區' )
             msg = TextSendMessage(text=tmp)
 
