@@ -57,31 +57,46 @@ def callback():
 
 
 def get_data_from_db():
-    # 獲取環境變數中的 PostgreSQL 連接 URI
-    DATABASE_URL = os.environ['DATABASE_URL']
+    try:
+        # 獲取環境變數中的 PostgreSQL 連接 URI
+        DATABASE_URL = os.environ['DATABASE_URL']
 
-    # 使用 urlparse 解析連接 URI
-    params = urlparse(unquote(DATABASE_URL))
+        # 使用 urlparse 解析連接 URI
+        params = urlparse(unquote(DATABASE_URL))
 
-    # 建立連接
-    conn = psycopg2.connect(
-        dbname=params.path[1:],
-        user=params.username,
-        password=params.password,
-        host=params.hostname,
-        port=params.port
-    )
+        # 建立連接
+        conn = psycopg2.connect(
+            dbname=params.path[1:],
+            user=params.username,
+            password=params.password,
+            host=params.hostname,
+            port=params.port
+        )
 
-    # 執行 SQL 查詢並獲取資料
-    cur = conn.cursor()
-    cur.execute("select name from test")
-    rows = cur.fetchall()
-    print(rows)
+        # 執行 SQL 查詢並獲取資料
+        cur = conn.cursor()
+        cur.execute("select name from test")
+        rows = cur.fetchall()
 
-    cur.close()
-    conn.close()
+        # 檢查查詢結果是否為空
+        if rows:
+            print(rows)
+            message = str(rows[0])  # 假設我們只要發送第一行的結果
+            if len(message) <= 2000:  # 檢查消息長度
+                return message
+            else:
+                print("The message is too long!")
+                return 'A'
+        else:
+            print("The query result is empty!")
+            return 'A'
 
-    return rows
+        cur.close()
+        conn.close()
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return 'A'
+
 
 
 
@@ -225,10 +240,9 @@ def handle_text_message(event):
         elif text == "語音":
             msg = TextSendMessage(text="近期即將推出，敬請期待")
         
-        elif text=="test":
-            msg = TextSendMessage(
-                text= get_data_from_db() 
-            )
+        elif text=="媽的":
+            tmp=get_data_from_db()
+            msg = TextSendMessage(text=tmp)
 
         else:
             if text == '開啟自動回覆':
