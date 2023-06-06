@@ -22,6 +22,13 @@ from urllib.parse import urlparse, unquote
 from gtts import gTTS
 
 import re
+# from google.cloud import storage
+# from google.oauth2 import service_account
+# import json
+# credentials_dict = json.loads(os.environ['GOOGLE_APPLICATION_CREDENTIALS'])
+# credentials = service_account.Credentials.from_service_account_info(credentials_dict)
+
+storage_client = storage.Client(credentials=credentials)
 load_dotenv('.env')
 app = Flask(__name__)
 line_bot_api = LineBotApi(os.getenv('LINE_CHANNEL_ACCESS_TOKEN'))
@@ -146,13 +153,20 @@ def get_trusted_person(user_id):
     conn.close()
 
     return result
+# def synthesize_text_to_speech(text, language='zh-TW'):
+#     tts = gTTS(text=text, lang=language)
+#     output_audio_path = f"{str(uuid.uuid4())}.mp3"
+#     tts.save(output_audio_path)
+#     return output_audio_path
 
-def synthesize_text_to_speech(text, language='zh-tw'):
-    tts = gTTS(text=text, lang=language)  # 這裡的 'zh-tw' 是代表繁體中文，你可以根據需求調整
-    output_audio_path = f"{str(uuid.uuid4())}.mp3"  # Google TTS 生成的音頻文件是 MP3 格式
-    tts.save(output_audio_path)
-    return output_audio_path
-
+# def upload_to_cloud_storage(file_path, bucket_name):
+#     storage_client = storage.Client()
+#     bucket = storage_client.get_bucket(bucket_name)
+#     file_name = os.path.basename(file_path)
+#     blob = bucket.blob(file_name)
+#     blob.upload_from_filename(file_path)
+#     file_url = f"https://storage.googleapis.com/{bucket_name}/{file_name}"
+#     return file_url
 
 
 def generate_summary(conversation):
@@ -482,7 +496,54 @@ def handle_text_message(event):
             msg = TextSendMessage(text=str(e))
     line_bot_api.reply_message(event.reply_token, msg)
 
-from linebot.models import AudioSendMessage
+
+# @handler.add(MessageEvent, message=AudioMessage)
+# def handle_audio_message(event):
+#     user_id = event.source.user_id
+#     audio_content = line_bot_api.get_message_content(event.message.id)
+#     input_audio_path = f'{str(uuid.uuid4())}.m4a'
+#     with open(input_audio_path, 'wb') as fd:
+#         for chunk in audio_content.iter_content():
+#             fd.write(chunk)
+
+#     try:
+#         if not model_management.get(user_id):
+#             raise ValueError('Invalid API token')
+#         else:
+#             is_successful, response, error_message = model_management[user_id].audio_transcriptions(input_audio_path, 'whisper-1')
+#             if not is_successful:
+#                 raise Exception(error_message)
+#             memory.append(user_id, 'user', response['text'])
+#             is_successful, response, error_message = model_management[user_id].chat_completions(memory.get(user_id), 'gpt-3.5-turbo')
+#             if not is_successful:
+#                 raise Exception(error_message)
+#             role, response_text = get_role_and_content(response)
+#             memory.append(user_id, role, response_text)
+            
+#             # 將回應文字轉換為語音
+#             output_audio_path = synthesize_text_to_speech(response_text)
+
+#             # 將語音檔案上傳到 Google Cloud Storage
+#             audio_url = upload_to_cloud_storage(output_audio_path, 'your_bucket_name')
+
+#             # 創建音訊訊息
+#             msg = AudioSendMessage(original_content_url=audio_url, duration=240000)
+#     except ValueError:
+#         msg = TextSendMessage(text='請先註冊你的 API Token，格式為 /註冊 [API TOKEN]')
+#     except KeyError:
+#         msg = TextSendMessage(text='請先註冊 Token，格式為 /註冊 sk-xxxxx')
+#     except Exception as e:
+#         memory.remove(user_id)
+#         if str(e).startswith('Incorrect API key provided'):
+#             msg = TextSendMessage(text='OpenAI API Token 有誤，請重新註冊。')
+#         else:
+#             msg = TextSendMessage(text=str(e))
+
+#     # 刪除本地音頻檔案
+#     os.remove(input_audio_path)
+#     os.remove(output_audio_path)
+
+#     line_bot_api.reply_message(event.reply_token, msg)
 
 @handler.add(MessageEvent, message=AudioMessage)
 def handle_audio_message(event):
@@ -504,16 +565,9 @@ def handle_audio_message(event):
             is_successful, response, error_message = model_management[user_id].chat_completions(memory.get(user_id), 'gpt-3.5-turbo')
             if not is_successful:
                 raise Exception(error_message)
-            role, response_text = get_role_and_content(response)
-            memory.append(user_id, role, response_text)
-            
-            # 新增的語音合成和發送語音訊息的功能
-            audio_file = synthesize_text_to_speech(response_text)
-            audio_url = upload_to_cloud_storage(audio_file)
-            msg = AudioSendMessage(
-                original_content_url=audio_url,
-                duration=240000  # 音訊長度，以毫秒為單位
-            )
+            role, response = get_role_and_content(response)
+            memory.append(user_id, role, response)
+            msg = TextSendMessage(text=response)
     except ValueError:
         msg = TextSendMessage(text='請先註冊你的 API Token，格式為 /註冊 [API TOKEN]')
     except KeyError:
