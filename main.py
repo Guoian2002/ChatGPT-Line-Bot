@@ -242,12 +242,18 @@ def handle_text_message(event):
                 msg = TextSendMessage(text=f"或是你可以尋找你信任的 {relation}，電話號碼是 {phone_number}，他會給與妳很大的協助。")
                 line_bot_api.reply_message(event.reply_token, msg)
 
-        elif text == '再次相信emo':
-            trusted_person = get_trusted_person(user_id)
-            if trusted_person is not None:
-                relation, phone_number = trusted_person
-                msg = TextSendMessage(text=f"或是你可以尋找你信任的 {relation}，電話號碼是 {phone_number}，他會給與妳很大的協助。")
-                line_bot_api.reply_message(event.reply_token, msg)
+        elif text == '相信emo':
+            TextSendMessage(text="您是否願意留下最信任的親朋好友聯絡方式給emo，讓emo在您需要幫助的時候可以盡快的給予您幫助～",
+                            quick_reply=QuickReply(
+                                items=[
+                                    QuickReplyButton(
+                                        action=MessageAction(label="是我願意相信emo", text="是我願意相信emo")
+                                    ),
+                                    QuickReplyButton(
+                                        action=MessageAction(label="我再想想", text="我再想想")
+                                    )
+                                ]
+                            ))
 
 
         elif text=="我再想想":
@@ -255,7 +261,7 @@ def handle_text_message(event):
 
         elif text == 'emo你在嗎':
             msg = TextSendMessage(
-                text="我在，有甚麼可以幫您的嗎，以下是您可以使用的指令\n\n指令：\n\n忘記\n👉 Emo會忘記上下文關係，接下來的回答不再跟上文有關係~\n\n請畫\n👉 請畫+你想畫的東西 Emo會在短時間畫給你~\n\n語音輸入\n👉 使用line語音輸入Emo可以直接回覆喔~\n\n其他文字輸入\n👉 Emo直接以文字回覆~  \n\n再次相信emo\n👉 Emo會更新你提供的資訊~",
+                text="我在，有甚麼可以幫您的嗎，以下是您可以使用的指令\n\n指令：\n\n忘記\n👉 Emo會忘記上下文關係，接下來的回答不再跟上文有關係~\n\n請畫\n👉 請畫+你想畫的東西 Emo會在短時間畫給你~\n\n語音輸入\n👉 使用line語音輸入Emo可以直接回覆喔~\n\n其他文字輸入\n👉 Emo直接以文字回覆~  \n\n相信emo\n👉 Emo會更新你提供的資訊~",
                 quick_reply=QuickReply(
                     items=[
                         QuickReplyButton(
@@ -271,7 +277,7 @@ def handle_text_message(event):
                             action=MessageAction(label="語音輸入", text="語音輸入")
                         ),
                         QuickReplyButton(
-                            action=MessageAction(label="再次相信emo", text="再次相信emo")
+                            action=MessageAction(label="相信emo", text="相信emo")
                         ),
                     ]
                 )
