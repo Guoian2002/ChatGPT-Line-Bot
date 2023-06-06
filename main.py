@@ -243,7 +243,7 @@ def handle_text_message(event):
                 line_bot_api.reply_message(event.reply_token, msg)
 
         elif text == '相信emo':
-            TextSendMessage(text="您是否願意留下最信任的親朋好友聯絡方式給emo，讓emo在您需要幫助的時候可以盡快的給予您幫助～",
+            msg=TextSendMessage(text="您是否願意留下最信任的親朋好友聯絡方式給emo，讓emo在您需要幫助的時候可以盡快的給予您幫助～",
                             quick_reply=QuickReply(
                                 items=[
                                     QuickReplyButton(
