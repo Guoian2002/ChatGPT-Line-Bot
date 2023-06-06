@@ -17,6 +17,7 @@ from linebot.exceptions import (
 from linebot.models import *
 import os
 import uuid
+import psycopg2
 
 import re
 load_dotenv('.env')
