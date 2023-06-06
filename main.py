@@ -56,6 +56,24 @@ def callback():
     return 'OK'
 
 
+def get_data_from_db():
+    conn = psycopg2.connect(
+        host="localhost",
+        database="test",
+        user="postgres",
+        password="q20021031q"
+    )
+
+    cur = conn.cursor()
+    cur.execute("SELECT name FROM test")
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+    return rows
+
+
+
+
 def generate_summary(conversation):
     return " ".join(conversation[:10])
 
@@ -194,6 +212,9 @@ def handle_text_message(event):
 
         elif text == "語音":
             msg = TextSendMessage(text="近期即將推出，敬請期待")
+        
+        elif text=="test":
+            data = get_data_from_db()
 
         else:
             if text == '開啟自動回覆':
