@@ -77,7 +77,7 @@ def get_data_from_db( dis ):
         # 檢查查詢結果是否為空
         if rows:
             message = str(rows) 
-            result = message.replace("[", "").replace("]", "").replace("(", "").replace(")", " \n").replace(",", " \n").replace("'", "")
+            result = message.replace("[", "").replace("]", "").replace("(", "").replace(")", " \n🧡").replace(",", " \n").replace("'", "")
             
             if len(message) <= 2000:  # 檢查消息長度
                 return result
@@ -358,7 +358,7 @@ def handle_text_message(event):
             elif text == '關閉自動回覆':
                 chat = False
                 msg = TextSendMessage(text="已關閉自動回復")
-                
+
             elif text == '我想要查詢心理醫療機構':
                 msg = TextSendMessage(
                     text="請點選想查詢的地區",
