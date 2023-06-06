@@ -80,8 +80,9 @@ def get_data_from_db( dis ):
         # 檢查查詢結果是否為空
         if rows:
             message = str(rows)  # 假設我們只要發送第一行的結果
+            result = '\n'.join([f'{item[0]}\n{item[1]}\n{item[2]}\n{item[3]}' for item in message])
             if len(message) <= 2000:  # 檢查消息長度
-                return message
+                return result
             else:
                 return 'The message is too long!'
         else:
