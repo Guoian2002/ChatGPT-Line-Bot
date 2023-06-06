@@ -77,7 +77,7 @@ def get_data_from_db( dis ):
         # 檢查查詢結果是否為空
         if rows:
             message = str(rows) 
-            result = message.replace("[", "").replace("]", "").replace("(", "").replace(")", " \n ").replace(",", " \n ").replace("'", "")
+            result = message.replace("[", "").replace("]", "").replace("(", "").replace(")", " \n").replace(",", " \n").replace("'", "")
             
             if len(message) <= 2000:  # 檢查消息長度
                 return result
@@ -106,20 +106,25 @@ def insert_into_db(user_id, relation, phone_number):
         port=params.port
     )
 
-     # 檢查 user_id 是否已存在
+    # 建立連接
     cur = conn.cursor()
+
+    # 檢查 user_id 是否已存在
     cur.execute("SELECT COUNT(*) FROM friend WHERE user_id = %s", (user_id,))
     count = cur.fetchone()[0]
 
     if count == 0:
         # user_id 不存在，插入新記錄
-        cur.execute("INSERT INTO friend (user_id, relation, phone_number) VALUES (%s, %s)", (user_id, relation, phone_number))
-        conn.commit()
+        cur.execute("INSERT INTO friend (user_id, relation, phone_number) VALUES (%s, %s, %s)", (user_id, relation, phone_number))
     else:
-        # user_id 已存在，刪除該使用者的所有欄位資料
+        # user_id 已存在，刪除該使用者的所有欄位資料再插入新記錄
         cur.execute("DELETE FROM friend WHERE user_id = %s", (user_id,))
-        conn.commit()
-        
+        cur.execute("INSERT INTO friend (user_id, relation, phone_number) VALUES (%s, %s, %s)", (user_id, relation, phone_number))
+
+    # 提交事務
+    conn.commit()
+
+    # 關閉連接
     cur.close()
     conn.close()
 
@@ -348,8 +353,12 @@ def handle_text_message(event):
         else:
             if text == '開啟自動回覆':
                 chat = True
+                msg = TextSendMessage(text="已開啟自動回復")
+
             elif text == '關閉自動回覆':
                 chat = False
+                msg = TextSendMessage(text="已關閉自動回復")
+                
             elif text == '我想要查詢心理醫療機構':
                 msg = TextSendMessage(
                     text="請點選想查詢的地區",
