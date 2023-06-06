@@ -56,7 +56,7 @@ def callback():
     return 'OK'
 
 
-def get_data_from_db():
+def get_data_from_db( dis ):
     try:
         # 獲取環境變數中的 PostgreSQL 連接 URI
         DATABASE_URL = os.environ['DATABASE_URL']
@@ -75,7 +75,7 @@ def get_data_from_db():
 
         # 執行 SQL 查詢並獲取資料
         cur = conn.cursor()
-        cur.execute("select name from test")
+        cur.execute("select "+dis+" from test")
         rows = cur.fetchall()
 
         # 檢查查詢結果是否為空
@@ -84,16 +84,13 @@ def get_data_from_db():
             if len(message) <= 2000:  # 檢查消息長度
                 return message
             else:
-                print("The message is too long!")
-                return 'A'
+                return 'The message is too long!'
         else:
-            print("The query result is empty!")
-            return 'The message is too long!'
+            return 'The query result is empty!'
 
         cur.close()
         conn.close()
     except Exception as e:
-        print(f"An error occurred: {e}")
         return 'An error occurred except'
 
     return rows
@@ -241,7 +238,11 @@ def handle_text_message(event):
             msg = TextSendMessage(text="近期即將推出，敬請期待")
         
         elif text=="媽的":
-            tmp=get_data_from_db()
+            tmp=get_data_from_db( 'name' )
+            msg = TextSendMessage(text=tmp)
+
+        elif text == '中山區':
+            tmp=get_data_from_db( '中山區' )
             msg = TextSendMessage(text=tmp)
 
         else:
@@ -288,11 +289,9 @@ def handle_text_message(event):
                         ]
                     )
                 )
-            elif text == '我想要做心理測驗':
-                pass
-
-            elif text in place_array:
-                pass
+            
+            #elif text in place_array:
+            #    pass
 
             elif chat == True:
                 user_model = model_management[user_id]
