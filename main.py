@@ -355,19 +355,19 @@ def handle_text_message(event):
                 quick_reply=QuickReply(
                     items=[
                         QuickReplyButton(
-                            action=MessageAction(label="壓力", text="壓力")
+                            action=MessageAction(label="~壓力~", text="~壓力~")
                         ),
                         QuickReplyButton(
-                            action=MessageAction(label="趣味", text="趣味")
+                            action=MessageAction(label="~趣味~", text="~趣味~")
                         ),
                     ]
                 )              
             )
 
-        elif text == "壓力":
+        elif text == "~壓力~":
             pass
 
-        elif text == "趣味":
+        elif text == "~趣味~":
             pass
 
 
