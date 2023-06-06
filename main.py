@@ -349,6 +349,27 @@ def handle_text_message(event):
         elif text in place_array:
             tmp=get_data_from_db( text )
             msg = TextSendMessage(text=tmp)
+        
+        elif text == "我想要做心理測驗":
+            msg = TextSendMessage(text="請選擇想做的類型",
+                quick_reply=QuickReply(
+                    items=[
+                        QuickReplyButton(
+                            action=MessageAction(label="壓力", text="壓力")
+                        ),
+                        QuickReplyButton(
+                            action=MessageAction(label="趣味", text="趣味")
+                        ),
+                    ]
+                )              
+            )
+
+        elif text == "壓力":
+            pass
+
+        elif text == "趣味":
+            pass
+
 
         else:
             if text == '開啟自動回覆':
