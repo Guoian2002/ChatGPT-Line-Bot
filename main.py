@@ -34,8 +34,7 @@ memory = Memory(system_message=os.getenv(
 model_management = {}
 api_keys = {}
 chat = True
-place_array = ["士林", "士林區", "大同", "大同區", "信義", "信義區", "北投", "北投區", "文山",
-               "文山區", "大安", "大安區", "中正", "中正區", "內湖", "內湖區", "松山", "松山區", "中山", "中山區"]
+place_array = ["士林區", "大同區", "信義區", "北投區", "文山區", "大安區", "中正區", "內湖區", "松山區", "中山區"]
 user_states = {}
 user_messages = {}
 assistant_messages = {}
@@ -75,7 +74,7 @@ def get_data_from_db( dis ):
 
         # 執行 SQL 查詢並獲取資料
         cur = conn.cursor()
-        cur.execute("   SELECT district,name,address,phone FROM heart WHERE district = '中山區';")
+        cur.execute("   SELECT district,name,address,phone FROM heart WHERE district = '"+ dis +"';")
         rows = cur.fetchall()
 
         # 檢查查詢結果是否為空
@@ -241,8 +240,8 @@ def handle_text_message(event):
         #    tmp=get_data_from_db( 'name' )
         #    msg = TextSendMessage(text=tmp)
 
-        elif text == '媽的':
-            tmp=get_data_from_db( '中山區' )
+        elif text in place_array:
+            tmp=get_data_from_db( text )
             msg = TextSendMessage(text=tmp)
 
         else:
@@ -289,9 +288,6 @@ def handle_text_message(event):
                         ]
                     )
                 )
-            
-            #elif text in place_array:
-            #    pass
 
             elif chat == True:
                 user_model = model_management[user_id]
