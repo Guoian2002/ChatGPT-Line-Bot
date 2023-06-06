@@ -54,12 +54,9 @@ def callback():
         abort(400)
     return 'OK'
 
-
+DATABASE_URL = os.environ['DATABASE_URL']
 def get_data_from_db( dis ):
     try:
-        # 獲取環境變數中的 PostgreSQL 連接 URI
-        DATABASE_URL = os.environ['DATABASE_URL']
-
         # 使用 urlparse 解析連接 URI
         params = urlparse(unquote(DATABASE_URL))
 
@@ -97,9 +94,9 @@ def get_data_from_db( dis ):
     return rows
 
 user_states = {}
+user_relations = {}
 
-def insert_into_db(user_id, relation):
-    DATABASE_URL = os.environ['DATABASE_URL']
+def insert_into_db(user_id, relation, phone_number):
     params = urlparse(unquote(DATABASE_URL))
     conn = psycopg2.connect(
         dbname=params.path[1:],
@@ -111,7 +108,7 @@ def insert_into_db(user_id, relation):
 
     # 將資料儲存到資料庫
     cur = conn.cursor()
-    cur.execute("INSERT INTO friend (user_id, relation,) VALUES (%s, %s)", (user_id, relation))
+    cur.execute("INSERT INTO friend (user_id, relation, phone_number) VALUES (%s, %s, %s)", (user_id, relation, phone_number))
     conn.commit()
 
     cur.close()
@@ -190,9 +187,15 @@ def handle_text_message(event):
             user_states[user_id] = 'awaiting_relation'
             msg = TextSendMessage(text="請輸入您信任的親朋好友關係")
         elif user_id in user_states and user_states[user_id] == 'awaiting_relation':
-            insert_into_db(user_id, text)
+            user_relations[user_id] = text  # store the relation
+            user_states[user_id] = 'awaiting_phone'  # change state to awaiting_phone
+            msg = TextSendMessage(text="請輸入親朋好友的電話號碼")
+        elif user_id in user_states and user_states[user_id] == 'awaiting_phone':
+            insert_into_db(user_id, user_relations[user_id], text)  # insert both relation and phone into DB
             user_states[user_id] = None  # reset state
-            msg = TextSendMessage(text="您的親朋好友關係已經成功記錄。")
+            user_relations[user_id] = None  # clear stored relation
+            msg = TextSendMessage(text="您的親朋好友關係及電話已經成功記錄。現在可以跟emo聊天了。")
+    
 
         elif text == 'emo你在嗎':
             msg = TextSendMessage(
