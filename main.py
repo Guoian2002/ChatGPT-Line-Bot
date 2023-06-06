@@ -96,8 +96,25 @@ def get_data_from_db( dis ):
 
     return rows
 
+user_states = {}
 
+def insert_into_db(user_id, relation):
+    params = urlparse(unquote(DATABASE_URL))
+    conn = psycopg2.connect(
+        dbname=params.path[1:],
+        user=params.username,
+        password=params.password,
+        host=params.hostname,
+        port=params.port
+    )
 
+    # 將資料儲存到資料庫
+    cur = conn.cursor()
+    cur.execute("INSERT INTO friend (user_id, relation,) VALUES (%s, %s)", (user_id, relation))
+    conn.commit()
+
+    cur.close()
+    conn.close()
 
 def generate_summary(conversation):
     return " ".join(conversation[:10])
@@ -167,8 +184,15 @@ def handle_text_message(event):
         user_next_indices[user_id] = 0
 
     try:
+        if text == '是我願意相信emo':
+            user_states[user_id] = 'awaiting_relation'
+            msg = TextSendMessage(text="請輸入您信任的親朋好友關係")
+        elif user_id in user_states and user_states[user_id] == 'awaiting_relation':
+            insert_into_db(user_id, text)
+            user_states[user_id] = None  # reset state
+            msg = TextSendMessage(text="您的親朋好友關係已經成功記錄。")
 
-        if text == 'emo你在嗎':
+        elif text == 'emo你在嗎':
             msg = TextSendMessage(
                 text="我在，有甚麼可以幫您的嗎，以下是您可以使用的指令\n\n指令：\n\n忘記\n👉 Emo會忘記上下文關係，接下來的回答不再跟上文有關係~\n\n請畫\n👉 請畫+你想畫的東西 Emo會在短時間畫給你~\n\n語音輸入\n👉 使用line語音輸入Emo可以直接回覆喔~\n\n其他文字輸入\n👉 Emo直接以文字回覆~",
                 quick_reply=QuickReply(
@@ -238,10 +262,6 @@ def handle_text_message(event):
         elif text == "語音":
             msg = TextSendMessage(text="近期即將推出，敬請期待")
         
-        #elif text=="媽的":
-        #    tmp=get_data_from_db( 'name' )
-        #    msg = TextSendMessage(text=tmp)
-
         elif text in place_array:
             tmp=get_data_from_db( text )
             msg = TextSendMessage(text=tmp)
