@@ -226,7 +226,7 @@ def handle_text_message(event):
             msg = TextSendMessage(text="近期即將推出，敬請期待")
         
         elif text=="test":
-            data = get_data_from_db()
+            get_data_from_db()
 
         else:
             if text == '開啟自動回覆':
