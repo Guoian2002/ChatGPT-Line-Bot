@@ -174,7 +174,26 @@ def generate_reply_messages(response, user_id):
     user_next_indices[user_id] = len(user_messages[user_id])
     return messages
 
-
+@handler.add(FollowEvent)
+def handle_follow(event):
+    # 使用者添加bot為好友時，發送歡迎訊息
+    line_bot_api.reply_message(
+        event.reply_token,
+        [
+            TextSendMessage(text="您好！🎊\n我是你的心情小助手 Emo ~\n在這裡，您可以放心的跟我聊天\n我可以提供您免費的AI心理諮商服務🥰\n點開底下選單\n我可以提供心理院所的資料給您參考\n有需要時，我可以給您專業人員的電話撥打☎️\n我也將不定時的給您更多有趣的心理測驗玩玩🖋\n接下來您可以自由的跟我聊聊囉😀"),
+            TextSendMessage(text="您是否願意留下最信任的親朋好友聯絡方式給emo，讓emo在您需要幫助的時候可以盡快的給予您幫助～",
+                            quick_reply=QuickReply(
+                                items=[
+                                    QuickReplyButton(
+                                        action=MessageAction(label="是我願意相信emo", text="是我願意相信emo")
+                                    ),
+                                    QuickReplyButton(
+                                        action=MessageAction(label="我再想想", text="我再想想")
+                                    )
+                                ]
+                            ))
+        ]
+    )
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
     global chat
@@ -219,8 +238,10 @@ def handle_text_message(event):
             trusted_person = get_trusted_person(user_id)
             if trusted_person is not None:
                 relation, phone_number = trusted_person
-                msg = TextSendMessage(text=f"你可以尋找你信任的 {relation}，電話號碼是 {phone_number}。")
+                msg = TextSendMessage(text=f"或是你可以尋找你信任的 {relation}，電話號碼是 {phone_number}，他會給與妳很大的協助。")
                 line_bot_api.reply_message(event.reply_token, msg)
+        elif text=="我再想想":
+            msg = TextSendMessage(text="現在可以跟emo聊天了~")
 
         elif text == 'emo你在嗎':
             msg = TextSendMessage(
