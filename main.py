@@ -77,6 +77,7 @@ def get_data_from_db():
         cur = conn.cursor()
         cur.execute("select name from test")
         rows = cur.fetchall()
+        print(rows)
 
         # 檢查查詢結果是否為空
         if rows:
@@ -97,6 +98,7 @@ def get_data_from_db():
         print(f"An error occurred: {e}")
         return 'A'
 
+    return rows
 
 
 
