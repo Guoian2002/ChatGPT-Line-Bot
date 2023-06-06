@@ -58,7 +58,7 @@ def callback():
 
 def get_data_from_db():
     conn = psycopg2.connect(
-        host="localhost",
+        host="EmoChatTest:localhost",
         database="test",
         user="postgres",
         password="q20021031q"
