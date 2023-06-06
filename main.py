@@ -491,13 +491,11 @@ def handle_audio_message(event):
         if not model_management.get(user_id):
             raise ValueError('Invalid API token')
         else:
-            is_successful, response, error_message = model_management[user_id].audio_transcriptions(
-                input_audio_path, 'whisper-1')
+            is_successful, response, error_message = model_management[user_id].audio_transcriptions(input_audio_path, 'whisper-1')
             if not is_successful:
                 raise Exception(error_message)
             memory.append(user_id, 'user', response['text'])
-            is_successful, response, error_message = model_management[user_id].chat_completions(
-                memory.get(user_id), 'gpt-3.5-turbo')
+            is_successful, response, error_message = model_management[user_id].chat_completions(memory.get(user_id), 'gpt-3.5-turbo')
             if not is_successful:
                 raise Exception(error_message)
             role, response = get_role_and_content(response)
@@ -515,7 +513,6 @@ def handle_audio_message(event):
             msg = TextSendMessage(text=str(e))
     os.remove(input_audio_path)
     line_bot_api.reply_message(event.reply_token, msg)
-
 
 @app.route("/", methods=['GET'])
 def home():
