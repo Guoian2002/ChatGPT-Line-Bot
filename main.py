@@ -79,11 +79,12 @@ def get_data_from_db( dis ):
 
         # 檢查查詢結果是否為空
         if rows:
-            #message = str(rows)  
-            result=result.join(rows)
-            #esult = '\n'.join([f'{item[0]}\n{item[1]}\n{item[2]}\n{item[3]}' for item in message])
+            message = str(rows) 
+            data = data.replace("[", "").replace("]", "").replace("),", ")\n")
+            result = data.split("\n")
+            output = '\n'.join(result)
             if len(message) <= 2000:  # 檢查消息長度
-                return result
+                return output
             else:
                 return 'The message is too long!'
         else:
