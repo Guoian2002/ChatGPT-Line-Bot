@@ -77,12 +77,10 @@ def get_data_from_db():
         cur = conn.cursor()
         cur.execute("select name from test")
         rows = cur.fetchall()
-        return rows
 
         # 檢查查詢結果是否為空
         if rows:
-            print(rows)
-            message = str(rows[0])  # 假設我們只要發送第一行的結果
+            message = str(rows)  # 假設我們只要發送第一行的結果
             if len(message) <= 2000:  # 檢查消息長度
                 return message
             else:
