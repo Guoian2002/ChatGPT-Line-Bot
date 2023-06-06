@@ -77,7 +77,7 @@ def get_data_from_db( dis ):
         # 檢查查詢結果是否為空
         if rows:
             message = str(rows) 
-            result = message.replace("[", "").replace("]", "").replace("(", "").replace(")", " ; ").replace(",", "  ").replace("'", "")
+            result = message.replace("[", "").replace("]", "").replace("(", "").replace(")", " \n ").replace(",", "  ").replace("'", "")
             
             if len(message) <= 2000:  # 檢查消息長度
                 return result
@@ -234,18 +234,28 @@ def handle_text_message(event):
             user_relations[user_id] = None  # clear stored relation
             msg = TextSendMessage(text="您的親朋好友關係及電話已經成功記錄。現在可以跟emo聊天了。")
 
+
         elif text == '我需要求助':
             trusted_person = get_trusted_person(user_id)
             if trusted_person is not None:
                 relation, phone_number = trusted_person
                 msg = TextSendMessage(text=f"或是你可以尋找你信任的 {relation}，電話號碼是 {phone_number}，他會給與妳很大的協助。")
                 line_bot_api.reply_message(event.reply_token, msg)
+
+        elif text == '再次相信emo':
+            trusted_person = get_trusted_person(user_id)
+            if trusted_person is not None:
+                relation, phone_number = trusted_person
+                msg = TextSendMessage(text=f"或是你可以尋找你信任的 {relation}，電話號碼是 {phone_number}，他會給與妳很大的協助。")
+                line_bot_api.reply_message(event.reply_token, msg)
+
+
         elif text=="我再想想":
             msg = TextSendMessage(text="現在可以跟emo聊天了~")
 
         elif text == 'emo你在嗎':
             msg = TextSendMessage(
-                text="我在，有甚麼可以幫您的嗎，以下是您可以使用的指令\n\n指令：\n\n忘記\n👉 Emo會忘記上下文關係，接下來的回答不再跟上文有關係~\n\n請畫\n👉 請畫+你想畫的東西 Emo會在短時間畫給你~\n\n語音輸入\n👉 使用line語音輸入Emo可以直接回覆喔~\n\n其他文字輸入\n👉 Emo直接以文字回覆~",
+                text="我在，有甚麼可以幫您的嗎，以下是您可以使用的指令\n\n指令：\n\n忘記\n👉 Emo會忘記上下文關係，接下來的回答不再跟上文有關係~\n\n請畫\n👉 請畫+你想畫的東西 Emo會在短時間畫給你~\n\n語音輸入\n👉 使用line語音輸入Emo可以直接回覆喔~\n\n其他文字輸入\n👉 Emo直接以文字回覆~  \n\n再次相信emo\n👉 Emo會更新你提供的資訊~",
                 quick_reply=QuickReply(
                     items=[
                         QuickReplyButton(
@@ -259,6 +269,9 @@ def handle_text_message(event):
                         ),
                         QuickReplyButton(
                             action=MessageAction(label="語音輸入", text="語音輸入")
+                        ),
+                        QuickReplyButton(
+                            action=MessageAction(label="再次相信emo", text="再次相信emo")
                         ),
                     ]
                 )
