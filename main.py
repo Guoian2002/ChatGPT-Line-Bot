@@ -22,6 +22,9 @@ from urllib.parse import urlparse, unquote
 from gtts import gTTS
 
 import re
+import time
+import requests
+
 # from google.cloud import storage
 # from google.oauth2 import service_account
 # import json
@@ -101,9 +104,24 @@ def get_data_from_db( dis ):
 
     return rows
 
+
+def send_render_signal():
+    # 在這裡放置與Render通信的代碼
+    # 例如，可以使用requests庫向Render發送一個HTTP請求
+    response = requests.get('https://emochattest.onrender.com/signal')
+
+def schedule_render_signal(interval_minutes):
+    while True:
+        send_render_signal()
+        time.sleep(interval_minutes * 60)  # 將分鐘轉換為秒
+
+# 啟動計時器，每隔10分鐘向Render發送信號
+schedule_render_signal(5)
+
+
 user_states = {}
 user_relations = {}
-
+#將使用將使用者資料寫入到friend資料庫
 def insert_into_db(user_id, relation, phone_number):
     params = urlparse(unquote(DATABASE_URL))
     conn = psycopg2.connect(
@@ -153,6 +171,7 @@ def get_trusted_person(user_id):
     conn.close()
 
     return result
+# 語音輸出測試
 # def synthesize_text_to_speech(text, language='zh-TW'):
 #     tts = gTTS(text=text, lang=language)
 #     output_audio_path = f"{str(uuid.uuid4())}.mp3"
@@ -207,9 +226,9 @@ def generate_reply_messages(response, user_id):
     user_next_indices[user_id] = len(user_messages[user_id])
     return messages
 
+#登入歡迎
 @handler.add(FollowEvent)
 def handle_follow(event):
-    # 使用者添加bot為好友時，發送歡迎訊息
     line_bot_api.reply_message(
         event.reply_token,
         [
@@ -227,6 +246,8 @@ def handle_follow(event):
                             ))
         ]
     )
+
+#文字輸出
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
     global chat
@@ -496,7 +517,7 @@ def handle_text_message(event):
             msg = TextSendMessage(text=str(e))
     line_bot_api.reply_message(event.reply_token, msg)
 
-
+#語音輸出測試
 # @handler.add(MessageEvent, message=AudioMessage)
 # def handle_audio_message(event):
 #     user_id = event.source.user_id
@@ -545,6 +566,7 @@ def handle_text_message(event):
 
 #     line_bot_api.reply_message(event.reply_token, msg)
 
+#語音輸入
 @handler.add(MessageEvent, message=AudioMessage)
 def handle_audio_message(event):
     user_id = event.source.user_id
