@@ -78,7 +78,7 @@ def schedule_render_messages(interval_minutes):
     send_render_message()
 
 # 啟動計時器，每隔五分鐘向Render伺服器發送訊息
-schedule_render_messages(1)
+schedule_render_messages(5)
 
 
 
