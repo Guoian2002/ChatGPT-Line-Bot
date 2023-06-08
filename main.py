@@ -24,6 +24,8 @@ from gtts import gTTS
 import re
 import time
 import requests
+import threading
+
 
 # from google.cloud import storage
 # from google.oauth2 import service_account
@@ -65,11 +67,19 @@ def callback():
         abort(400)
     return 'OK'
 
-@app.route('/signal', methods=['GET'])
-def handle_signal():
-    # 在這裡放置處理信號的代碼
-    # 可以根據你的需求進行相應的處理操作
-    return 'Signal received'
+def send_render_message():
+    # 在這裡放置與Render通信的程式碼，例如向伺服器發送訊息
+    message = "你好"
+    response = requests.post('https://emochattest.onrender.com', json={'message': message})
+
+def schedule_render_messages(interval_minutes):
+    timer = threading.Timer(interval_minutes * 60, schedule_render_messages, args=[interval_minutes])
+    timer.start()
+    send_render_message()
+
+# 啟動計時器，每隔五分鐘向Render伺服器發送訊息
+schedule_render_messages(5)
+
 
 
 DATABASE_URL = os.environ['DATABASE_URL']
@@ -112,18 +122,7 @@ def get_data_from_db( dis ):
     return rows
 
 
-def send_render_signal():
-    # 在這裡放置與Render通信的代碼
-    # 例如，可以使用requests庫向Render發送一個HTTP請求
-    response = requests.get('https://emochattest.onrender.com/signal')
 
-def schedule_render_signal(interval_minutes):
-    while True:
-        send_render_signal()
-        time.sleep(interval_minutes * 60)  # 將分鐘轉換為秒
-
-# 啟動計時器，每隔10分鐘向Render發送信號
-schedule_render_signal(5)
 
 
 user_states = {}
