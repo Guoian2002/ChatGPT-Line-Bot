@@ -108,7 +108,7 @@ def get_data_from_db( dis ):
 def send_render_signal():
     # 在這裡放置與Render通信的代碼
     # 例如，可以使用requests庫向Render發送一個HTTP請求
-    response = requests.get('https://emochattest.onrender.com/signal')
+    response = requests.get('https://emochattest.onrender.com')
 
 def schedule_render_signal(interval_minutes):
     while True:
