@@ -65,6 +65,13 @@ def callback():
         abort(400)
     return 'OK'
 
+@app.route('/signal', methods=['GET'])
+def handle_signal():
+    # 在這裡放置處理信號的代碼
+    # 可以根據你的需求進行相應的處理操作
+    return 'Signal received'
+
+
 DATABASE_URL = os.environ['DATABASE_URL']
 def get_data_from_db( dis ):
     try:
@@ -108,7 +115,7 @@ def get_data_from_db( dis ):
 def send_render_signal():
     # 在這裡放置與Render通信的代碼
     # 例如，可以使用requests庫向Render發送一個HTTP請求
-    response = requests.get('https://emochattest.onrender.com')
+    response = requests.get('https://emochattest.onrender.com/signal')
 
 def schedule_render_signal(interval_minutes):
     while True:
