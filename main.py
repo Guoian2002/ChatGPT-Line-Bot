@@ -70,7 +70,7 @@ def callback():
 def send_render_message():
     # 在這裡放置與Render通信的程式碼，例如向伺服器發送訊息
     message = "你好"
-    response = requests.post('https://emochattest.onrender.com', json={'message': message})
+    response = requests.post('https://emochattest.onrender.com/message', json={'message': message})
 
 def schedule_render_messages(interval_minutes):
     timer = threading.Timer(interval_minutes * 60, schedule_render_messages, args=[interval_minutes])
