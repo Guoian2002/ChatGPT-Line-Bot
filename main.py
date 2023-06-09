@@ -198,18 +198,27 @@ def generate_bullet_point_messages(response):
 
 def generate_reply_messages(response):
     messages = []
-    response_len = len(response)
-    remaining_response = response
 
-    while response_len > MAX_CHARS:
-        split_index = remaining_response.rfind(' ', 0, MAX_CHARS)
-        current_message = remaining_response[:split_index]
-        remaining_response = remaining_response[split_index + 1:]
-        response_len = len(remaining_response)
-        messages.append(TextSendMessage(text=current_message))
+    # 檢查文字是否為列點式的格式
+    if response.startswith('1. '):
+        parts = split_bullet_points(response)
+        for part in parts:
+            messages.append(TextSendMessage(text=part))
+    else:
+        response_len = len(response)
+        remaining_response = response
 
-    messages.append(TextSendMessage(text=remaining_response))
+        while response_len > MAX_CHARS:
+            split_index = remaining_response.rfind(' ', 0, MAX_CHARS)
+            current_message = remaining_response[:split_index]
+            remaining_response = remaining_response[split_index + 1:]
+            response_len = len(remaining_response)
+            messages.append(TextSendMessage(text=current_message))
+
+        messages.append(TextSendMessage(text=remaining_response))
+
     return messages
+
 
 
 
