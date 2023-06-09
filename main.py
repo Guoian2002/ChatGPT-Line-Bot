@@ -177,8 +177,7 @@ def get_trusted_person(user_id):
 #     return file_url
 
 
-def generate_summary(conversation):
-    return " ".join(conversation[:10])
+
 
 
 def split_bullet_points(text):
@@ -332,8 +331,12 @@ def handle_text_message(event):
 
         elif text == '總結':
             conversation = user_messages[user_id] + assistant_messages[user_id]
-            summary = generate_summary(conversation)
-            msg = TextSendMessage(text=summary)
+            summary = generate_summary(conversation, memory)
+            if summary is not None:
+                msg = TextSendMessage(text=summary)
+            else:
+                msg = TextSendMessage(text='很抱歉，生成總結失敗')
+
 
         elif text == '忘記':
             memory.remove(user_id)
