@@ -192,28 +192,20 @@ def split_bullet_points(text):
 def generate_reply_messages(response, user_id):
     messages = []
 
-    # 檢查文字是否為列點式的格式
     if response.startswith('1. '):
         parts = split_bullet_points(response)
-        for part in parts:
-            messages.append(TextSendMessage(text=part, quick_reply=QuickReply(
+        for i, part in enumerate(parts):
+            # 在列點後加入列點符號
+            formatted_part = f"{i+1}. {part}"
+            messages.append(TextSendMessage(text=formatted_part, quick_reply=QuickReply(
                 items=[QuickReplyButton(action=MessageAction(label="繼續", text="繼續"))])))
     else:
-        response_len = len(response)
-        remaining_response = response
-
-        while response_len > MAX_CHARS:
-            split_index = remaining_response.rfind(' ', 0, MAX_CHARS)
-            current_message = remaining_response[:split_index]
-            remaining_response = remaining_response[split_index + 1:]
-            response_len = len(remaining_response)
-            messages.append(TextSendMessage(text=current_message, quick_reply=QuickReply(
-                items=[QuickReplyButton(action=MessageAction(label="繼續", text="繼續"))])))
-
-        messages.append(TextSendMessage(text=remaining_response))
+        # 當回覆不是列點式時，將回覆訊息直接加入訊息列表
+        messages.append(TextSendMessage(text=response))
 
     user_next_indices[user_id] = len(user_messages[user_id])
     return messages
+
 
 
 #登入歡迎
