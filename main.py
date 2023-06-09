@@ -177,6 +177,24 @@ def get_trusted_person(user_id):
 #     return file_url
 
 
+def generate_summary(conversation, memory):
+    # 將對話記錄轉換為單一字串
+    conversation_text = '\n'.join(conversation)
+
+    # 調用API生成總結
+    api_key = os.getenv("CHATGPT_API_KEY")
+    model = OpenAIModel(api_key=api_key)
+    is_successful, _, _ = model.check_token_valid()
+    if not is_successful:
+        raise ValueError('Invalid API token')
+
+    # 將對話傳遞給API生成總結
+    summary = model.generate_summary(conversation_text)
+
+    # 在這裡使用`memory`對象進行操作和記錄
+    # ...
+
+    return summary
 
 
 
