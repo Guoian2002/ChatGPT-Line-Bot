@@ -34,6 +34,7 @@ import threading
 # credentials = service_account.Credentials.from_service_account_info(credentials_dict)
 
 # storage_client = storage.Client(credentials=credentials)
+
 load_dotenv('.env')
 app = Flask(__name__)
 line_bot_api = LineBotApi(os.getenv('LINE_CHANNEL_ACCESS_TOKEN'))
@@ -213,6 +214,7 @@ def generate_reply_messages(response, user_id):
 
     user_next_indices[user_id] = len(user_messages[user_id])
     return messages
+
 
 #登入歡迎
 @handler.add(FollowEvent)
