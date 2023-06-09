@@ -187,23 +187,17 @@ def split_bullet_points(text):
     # 去除第一個元素，因為在第一個列點之前的部分會是空字串
     return points[1:]
 
-def generate_bullet_point_messages(response):
-    messages = []
-    parts = split_bullet_points(response)
-    for i, part in enumerate(parts):
-        # 在列點後加入列點符號
-        formatted_part = f"{i+1}. {part}"
-        messages.append(TextSendMessage(text=formatted_part))
-    return messages
 
-def generate_reply_messages(response):
+# 控制輸出的字數
+def generate_reply_messages(response, user_id):
     messages = []
 
     # 檢查文字是否為列點式的格式
     if response.startswith('1. '):
         parts = split_bullet_points(response)
         for part in parts:
-            messages.append(TextSendMessage(text=part))
+            messages.append(TextSendMessage(text=part, quick_reply=QuickReply(
+                items=[QuickReplyButton(action=MessageAction(label="繼續", text="繼續"))])))
     else:
         response_len = len(response)
         remaining_response = response
@@ -213,10 +207,12 @@ def generate_reply_messages(response):
             current_message = remaining_response[:split_index]
             remaining_response = remaining_response[split_index + 1:]
             response_len = len(remaining_response)
-            messages.append(TextSendMessage(text=current_message))
+            messages.append(TextSendMessage(text=current_message, quick_reply=QuickReply(
+                items=[QuickReplyButton(action=MessageAction(label="繼續", text="繼續"))])))
 
         messages.append(TextSendMessage(text=remaining_response))
 
+    user_next_indices[user_id] = len(user_messages[user_id])
     return messages
 
 
@@ -493,17 +489,12 @@ def handle_text_message(event):
                     if not is_successful:
                         raise Exception(error_message)
                     role, response = get_role_and_content(response)
-
-                    if response.startswith('1. '):
-                        messages = generate_bullet_point_messages(response)
-                    else:
-                        messages = generate_reply_messages(response)
-
-                    line_bot_api.reply_message(event.reply_token, messages)
-                    return 'OK'
+                    if len(response) > MAX_CHARS:
+                        messages = generate_reply_messages(response, user_id)
+                        line_bot_api.reply_message(event.reply_token, messages)
+                        return 'OK'
                 memory.append(user_id, role, response)
                 msg = TextSendMessage(text=response)
-
 
 
 
