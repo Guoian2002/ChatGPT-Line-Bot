@@ -187,24 +187,30 @@ def split_bullet_points(text):
     # 去除第一個元素，因為在第一個列點之前的部分會是空字串
     return points[1:]
 
-
-# 控制輸出的字數
-def generate_reply_messages(response, user_id):
+def generate_bullet_point_messages(response):
     messages = []
-
-    if response.startswith('1. '):
-        parts = split_bullet_points(response)
-        for i, part in enumerate(parts):
-            # 在列點後加入列點符號
-            formatted_part = f"{i+1}. {part}"
-            messages.append(TextSendMessage(text=formatted_part, quick_reply=QuickReply(
-                items=[QuickReplyButton(action=MessageAction(label="繼續", text="繼續"))])))
-    else:
-        # 當回覆不是列點式時，將回覆訊息直接加入訊息列表
-        messages.append(TextSendMessage(text=response))
-
-    user_next_indices[user_id] = len(user_messages[user_id])
+    parts = split_bullet_points(response)
+    for i, part in enumerate(parts):
+        # 在列點後加入列點符號
+        formatted_part = f"{i+1}. {part}"
+        messages.append(formatted_part)
     return messages
+
+def generate_reply_messages(response):
+    messages = []
+    response_len = len(response)
+    remaining_response = response
+
+    while response_len > MAX_CHARS:
+        split_index = remaining_response.rfind(' ', 0, MAX_CHARS)
+        current_message = remaining_response[:split_index]
+        remaining_response = remaining_response[split_index + 1:]
+        response_len = len(remaining_response)
+        messages.append(current_message)
+
+    messages.append(remaining_response)
+    return messages
+
 
 
 
@@ -478,12 +484,19 @@ def handle_text_message(event):
                     if not is_successful:
                         raise Exception(error_message)
                     role, response = get_role_and_content(response)
-                    if len(response) > MAX_CHARS:
-                        messages = generate_reply_messages(response, user_id)
-                        line_bot_api.reply_message(event.reply_token, messages)
-                        return 'OK'
+
+                    if response.startswith('1. '):
+                        messages = generate_bullet_point_messages(response)
+                    else:
+                        messages = generate_reply_messages(response)
+
+                    line_bot_api.reply_message(event.reply_token, messages)
+                    return 'OK'
                 memory.append(user_id, role, response)
                 msg = TextSendMessage(text=response)
+
+
+
 
     except ValueError:
         msg = TextSendMessage(text='Token 無效，請重新註冊，格式為 /註冊 sk-xxxxx')
