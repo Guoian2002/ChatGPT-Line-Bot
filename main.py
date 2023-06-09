@@ -67,21 +67,6 @@ def callback():
         abort(400)
     return 'OK'
 
-def send_render_message():
-    # 在這裡放置與Render通信的程式碼，例如向伺服器發送訊息
-    message = "你好"
-    response = requests.post('https://emochattest.onrender.com/message', json={'message': message})
-
-def schedule_render_messages(interval_minutes):
-    timer = threading.Timer(interval_minutes * 60, schedule_render_messages, args=[interval_minutes])
-    timer.start()
-    send_render_message()
-
-# 啟動計時器，每隔五分鐘向Render伺服器發送訊息
-schedule_render_messages(5)
-
-
-
 DATABASE_URL = os.environ['DATABASE_URL']
 def get_data_from_db( dis ):
     try:
@@ -120,9 +105,6 @@ def get_data_from_db( dis ):
         return 'An error occurred except'
 
     return rows
-
-
-
 
 
 user_states = {}
