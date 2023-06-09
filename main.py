@@ -193,7 +193,7 @@ def generate_bullet_point_messages(response):
     for i, part in enumerate(parts):
         # 在列點後加入列點符號
         formatted_part = f"{i+1}. {part}"
-        messages.append(formatted_part)
+        messages.append(TextSendMessage(text=formatted_part))
     return messages
 
 def generate_reply_messages(response):
@@ -206,9 +206,9 @@ def generate_reply_messages(response):
         current_message = remaining_response[:split_index]
         remaining_response = remaining_response[split_index + 1:]
         response_len = len(remaining_response)
-        messages.append(current_message)
+        messages.append(TextSendMessage(text=current_message))
 
-    messages.append(remaining_response)
+    messages.append(TextSendMessage(text=remaining_response))
     return messages
 
 
