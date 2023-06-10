@@ -178,33 +178,39 @@ def get_trusted_person(user_id):
 
 def split_bullet_points(text):
     # 透過正規表示式將列點的部分分開
+    title = re.match(r"\S*:")
     points = re.findall(r'\S*\d+\.\s*\S*', text)
     # 去除第一個元素，因為在第一個列點之前的部分會是空字串
-    return points[1:]
+    return title, points[1:]
 
 # 控制輸出的字數
 def generate_reply_messages(response, user_id):
     messages = []
 
     # 檢查文字是否為列點式的格式
-    if response.startswith('1. '):
-        parts = split_bullet_points(response)
+    title, parts = split_bullet_points(response)
+    if(len(parts) != 0):
         for part in parts:
             messages.append(TextSendMessage(text=part, quick_reply=QuickReply(
                 items=[QuickReplyButton(action=MessageAction(label="繼續", text="繼續"))])))
-    else:
-        response_len = len(response)
-        remaining_response = response
-
-        while response_len > MAX_CHARS:
-            split_index = remaining_response.rfind(' ', 0, MAX_CHARS)
-            current_message = remaining_response[:split_index]
-            remaining_response = remaining_response[split_index + 1:]
-            response_len = len(remaining_response)
-            messages.append(TextSendMessage(text=current_message, quick_reply=QuickReply(
+        messages.append(TextSendMessage(text=title, quick_reply=QuickReply(
                 items=[QuickReplyButton(action=MessageAction(label="繼續", text="繼續"))])))
+    else:
+        messages.append(TextSendMessage(text=response, quick_reply=QuickReply(
+                items=[QuickReplyButton(action=MessageAction(label="繼續", text="繼續"))])))
+    # else:
+    #     response_len = len(response)
+    #     remaining_response = response
 
-        messages.append(TextSendMessage(text=remaining_response))
+    #     while response_len > MAX_CHARS:
+    #         split_index = remaining_response.rfind(' ', 0, MAX_CHARS)
+    #         current_message = remaining_response[:split_index]
+    #         remaining_response = remaining_response[split_index + 1:]
+    #         response_len = len(remaining_response)
+    #         messages.append(TextSendMessage(text=current_message, quick_reply=QuickReply(
+    #             items=[QuickReplyButton(action=MessageAction(label="繼續", text="繼續"))])))
+
+    #     messages.append(TextSendMessage(text=remaining_response))
 
     user_next_indices[user_id] = len(user_messages[user_id])
     return messages
