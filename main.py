@@ -245,7 +245,7 @@ def handle_follow(event):
 
 def generate_summary(conversation):
     
-    return "請幫我將以下對話做100字左右的總結,回覆時請使用您不要說使用者"+" ".join(conversation[:10])
+    return "請幫我將以下對話做100字左右的總結"+" ".join(conversation[:10])
 
 #文字輸出
 @handler.add(MessageEvent, message=TextMessage)
