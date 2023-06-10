@@ -176,15 +176,11 @@ def get_trusted_person(user_id):
 #     file_url = f"https://storage.googleapis.com/{bucket_name}/{file_name}"
 #     return file_url
 
-
-
-
 def split_bullet_points(text):
     # 透過正規表示式將列點的部分分開
     points = re.split(r'\s*\d+\.\s*', text)
     # 去除第一個元素，因為在第一個列點之前的部分會是空字串
     return points[1:]
-
 
 # 控制輸出的字數
 def generate_reply_messages(response, user_id):
@@ -237,27 +233,12 @@ def handle_follow(event):
                             ))
         ]
     )
+    
+def generate_summary(conversation):
+    return " ".join(conversation[:10])
 
 #文字輸出
 @handler.add(MessageEvent, message=TextMessage)
-# def generate_summary(conversation, memory):
-#     # 將對話記錄轉換為單一字串
-#     conversation_text = '\n'.join(conversation)
-
-#     # 調用API生成總結
-#     api_key = os.getenv("CHATGPT_API_KEY")
-#     model = OpenAIModel(api_key=api_key)
-#     is_successful, _, _ = model.check_token_valid()
-#     if not is_successful:
-#         raise ValueError('Invalid API token')
-
-#     # 將對話傳遞給API生成總結
-#     summary = model.generate_summary(conversation_text)
-
-#     # 在這裡使用`memory`對象進行操作和記錄
-#     # ...
-
-#     return summary
 
 def handle_text_message(event):
     global chat
@@ -281,8 +262,8 @@ def handle_text_message(event):
 
     user_messages[user_id].append(text)
 
-    if user_id not in user_next_indices:
-        user_next_indices[user_id] = 0
+    # if user_id not in user_next_indices:
+    #     user_next_indices[user_id] = 0
 
     try:
         if text == '是我願意相信emo':
@@ -349,11 +330,8 @@ def handle_text_message(event):
 
         elif text == '總結':
             conversation = user_messages[user_id] + assistant_messages[user_id]
-            summary = generate_summary(conversation, memory)
-            if summary is not None:
-                msg = TextSendMessage(text=summary)
-            else:
-                msg = TextSendMessage(text='很抱歉，生成總結失敗')
+            summary=generate_summary(conversation)
+             msg = TextSendMessage(text=summary)
 
 
         elif text == '忘記':
