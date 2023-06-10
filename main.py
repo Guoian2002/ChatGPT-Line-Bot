@@ -456,7 +456,7 @@ def handle_text_message(event):
                     )
                 )
 
-        if chat == True and text != "開啟聊天":
+        if memory.chats[user_id] == True and text != "開啟聊天":
             user_model = model_management[user_id]
             memory.append(user_id, 'user', text)
             url = website.get_url_from_text(text)
