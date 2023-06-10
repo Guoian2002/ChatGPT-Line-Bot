@@ -235,7 +235,10 @@ def handle_follow(event):
     )
 
 def generate_summary(conversation):
-    return " ".join(conversation[:10])
+    is_successful, response, error_message = user_model.chat_completions(
+        "幫我幫我將以下對話做大概100字的總結:"+" ".join(conversation[:10]), os.getenv('OPENAI_MODEL_ENGINE'))
+    
+    return response
 
 #文字輸出
 @handler.add(MessageEvent, message=TextMessage)
