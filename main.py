@@ -52,7 +52,7 @@ place_array = ["士林區", "大同區", "信義區", "北投區", "文山區", 
 user_states = {}
 user_messages = {}
 assistant_messages = {}
-MAX_CHARS = 150
+MAX_CHARS = 1000000
 user_next_indices = {}  # 追蹤每位用戶已經發送的訊息字數
 
 
