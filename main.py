@@ -176,31 +176,20 @@ def get_trusted_person(user_id):
 #     return file_url
 
 def split_bullet_points(text):
-    # 透過正規表示式將列點的部分分開
-    title = re.match(r'[\u4e00-\u9fff]+[。]', text)
-    try:
-        title = title.group(0)
-    except:
-        title = "前面取不到"
-    points = re.findall(r'\S*\d+\. \S*', text)
-    # 去除第一個元素，因為在第一個列點之前的部分會是空字串
-    return title, points[1:]
+    points = re.findall(r'[\u4e00-\u9fff]+[。]', text)
+    return points[0:]
 
 # 控制輸出的字數
 def generate_reply_messages(response, user_id):
     messages = []
 
-    # 檢查文字是否為列點式的格式
-    title, parts = split_bullet_points(response)
-    if(len(parts) != 0):
-        messages.append(TextSendMessage(text=title, quick_reply=QuickReply(
-                items=[QuickReplyButton(action=MessageAction(label="繼續", text="繼續"))])))
+    parts = split_bullet_points(response)
+    if(len(parts) != 0):                
         for part in parts:
-            messages.append(TextSendMessage(text=part, quick_reply=QuickReply(
-                items=[QuickReplyButton(action=MessageAction(label="繼續", text="繼續"))])))
+            messages.append(TextSendMessage(text=part))
     else:
-        messages.append(TextSendMessage(text=response, quick_reply=QuickReply(
-                items=[QuickReplyButton(action=MessageAction(label="繼續", text="繼續"))])))
+        messages.append(TextSendMessage(text=response))
+
     # else:
     #     response_len = len(response)
     #     remaining_response = response
@@ -217,9 +206,6 @@ def generate_reply_messages(response, user_id):
 
     user_next_indices[user_id] = len(user_messages[user_id])
     return messages
-
-
-
 
 
 #登入歡迎
