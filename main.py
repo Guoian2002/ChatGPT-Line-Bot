@@ -334,7 +334,7 @@ def handle_text_message(event):
             )
 
         elif text == '總結':
-            chat=True
+            memory.chats[user_id] = True
             conversation = user_messages[user_id] + assistant_messages[user_id]
             text=generate_summary(conversation)
 
@@ -409,11 +409,11 @@ def handle_text_message(event):
 
         else:
             if text == '開啟聊天':
-                chat = True
+                memory.chats[user_id] = True
                 msg = TextSendMessage(text="已開啟聊天")
 
             elif text == '關閉聊天':
-                chat = False
+                memory.chats[user_id] = False
                 msg = TextSendMessage(text="已關閉聊天")
 
             elif text == '我想要查詢心理醫療機構':
