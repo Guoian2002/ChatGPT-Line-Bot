@@ -235,10 +235,8 @@ def handle_follow(event):
     )
 
 def generate_summary(conversation):
-    is_successful, response, error_message = user_model.chat_completions(
-        "幫我幫我將以下對話做大概100字的總結:"+" ".join(conversation[:10]), os.getenv('OPENAI_MODEL_ENGINE'))
     
-    return response
+    return " ".join(conversation[:10])
 
 #文字輸出
 @handler.add(MessageEvent, message=TextMessage)
@@ -332,10 +330,9 @@ def handle_text_message(event):
             )
 
         elif text == '總結':
+            chat=True
             conversation = user_messages[user_id] + assistant_messages[user_id]
-            summary=generate_summary(conversation)
-            msg = TextSendMessage(text=summary)
-
+            text=generate_summary(conversation)
 
         elif text == '忘記':
             memory.remove(user_id)
@@ -455,7 +452,7 @@ def handle_text_message(event):
                     )
                 )
 
-            elif chat == True:
+            if chat == True:
                 user_model = model_management[user_id]
                 memory.append(user_id, 'user', text)
                 url = website.get_url_from_text(text)
