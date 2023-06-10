@@ -244,7 +244,7 @@ def generate_summary(conversation):
 def handle_text_message(event):
     user_id = event.source.user_id
     chat = memory.chats[user_id]
-    if(chat == False):
+    if(chat == None):
         memory.setChat(user_id, True)
     text = event.message.text.strip()
     logger.info(f'{user_id}: {text}')
@@ -454,48 +454,48 @@ def handle_text_message(event):
                     )
                 )
 
-            if chat == True:
-                user_model = model_management[user_id]
-                memory.append(user_id, 'user', text)
-                url = website.get_url_from_text(text)
-                if url:
-                    if youtube.retrieve_video_id(text):
-                        is_successful, chunks, error_message = youtube.get_transcript_chunks(
-                            youtube.retrieve_video_id(text))
-                        if not is_successful:
-                            raise Exception(error_message)
-                        youtube_transcript_reader = YoutubeTranscriptReader(
-                            user_model, os.getenv('OPENAI_MODEL_ENGINE'))
-                        is_successful, response, error_message = youtube_transcript_reader.summarize(
-                            chunks)
-                        if not is_successful:
-                            raise Exception(error_message)
-                        role, response = get_role_and_content(response)
-                        msg = TextSendMessage(text=response)
-                    else:
-                        chunks = website.get_content_from_url(url)
-                        if len(chunks) == 0:
-                            raise Exception('無法撈取此網站文字')
-                        website_reader = WebsiteReader(
-                            user_model, os.getenv('OPENAI_MODEL_ENGINE'))
-                        is_successful, response, error_message = website_reader.summarize(
-                            chunks)
-                        if not is_successful:
-                            raise Exception(error_message)
-                        role, response = get_role_and_content(response)
-                        msg = TextSendMessage(text=response)
-                else:
-                    is_successful, response, error_message = user_model.chat_completions(
-                        memory.get(user_id), os.getenv('OPENAI_MODEL_ENGINE'))
+        if chat == True and text != "開啟聊天":
+            user_model = model_management[user_id]
+            memory.append(user_id, 'user', text)
+            url = website.get_url_from_text(text)
+            if url:
+                if youtube.retrieve_video_id(text):
+                    is_successful, chunks, error_message = youtube.get_transcript_chunks(
+                        youtube.retrieve_video_id(text))
+                    if not is_successful:
+                        raise Exception(error_message)
+                    youtube_transcript_reader = YoutubeTranscriptReader(
+                        user_model, os.getenv('OPENAI_MODEL_ENGINE'))
+                    is_successful, response, error_message = youtube_transcript_reader.summarize(
+                        chunks)
                     if not is_successful:
                         raise Exception(error_message)
                     role, response = get_role_and_content(response)
-                    if len(response) > MAX_CHARS:
-                        messages = generate_reply_messages(response, user_id)
-                        line_bot_api.reply_message(event.reply_token, messages)
-                        return 'OK'
-                memory.append(user_id, role, response)
-                msg = TextSendMessage(text=response)
+                    msg = TextSendMessage(text=response)
+                else:
+                    chunks = website.get_content_from_url(url)
+                    if len(chunks) == 0:
+                        raise Exception('無法撈取此網站文字')
+                    website_reader = WebsiteReader(
+                        user_model, os.getenv('OPENAI_MODEL_ENGINE'))
+                    is_successful, response, error_message = website_reader.summarize(
+                        chunks)
+                    if not is_successful:
+                        raise Exception(error_message)
+                    role, response = get_role_and_content(response)
+                    msg = TextSendMessage(text=response)
+            else:
+                is_successful, response, error_message = user_model.chat_completions(
+                    memory.get(user_id), os.getenv('OPENAI_MODEL_ENGINE'))
+                if not is_successful:
+                    raise Exception(error_message)
+                role, response = get_role_and_content(response)
+                if len(response) > MAX_CHARS:
+                    messages = generate_reply_messages(response, user_id)
+                    line_bot_api.reply_message(event.reply_token, messages)
+                    return 'OK'
+            memory.append(user_id, role, response)
+            msg = TextSendMessage(text=response)
 
 
 

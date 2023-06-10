@@ -19,7 +19,7 @@ class Memory(MemoryInterface):
         self.system_messages = defaultdict(str)
         self.default_system_message = system_message
         self.memory_message_count = memory_message_count
-        self.chats = defaultdict(bool)
+        self.chats = defaultdict(lambda: None)
 
     def _initialize(self, user_id: str):
         self.storage[user_id] = [{
@@ -36,7 +36,7 @@ class Memory(MemoryInterface):
         self.remove(user_id)
 
     def setChat(self, user_id: str, status: bool):
-        if(self.chats[user_id] == False):
+        if(self.chats[user_id] == None):
             self.chats[user_id] = True
         else:
             self.chats[user_id] = status
