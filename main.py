@@ -178,7 +178,7 @@ def get_trusted_person(user_id):
 
 def split_bullet_points(text):
     # 透過正規表示式將列點的部分分開
-    title = re.search(r"\S*：", text)
+    title = re.match(r"\S*：", text)
     try:
         title = title.group(0)
     except:
