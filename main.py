@@ -178,10 +178,10 @@ def get_trusted_person(user_id):
 
 def split_bullet_points(text):
     # 透過正規表示式將列點的部分分開
-    title = re.search(r"\S*:", text)
+    title = re.match(r"\S*:", text)
     points = re.findall(r'\S*\d+\. \S*', text)
     # 去除第一個元素，因為在第一個列點之前的部分會是空字串
-    return title, points[1:]
+    return title.group(), points[1:]
 
 # 控制輸出的字數
 def generate_reply_messages(response, user_id):
