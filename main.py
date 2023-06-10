@@ -177,7 +177,7 @@ def get_trusted_person(user_id):
 
 def split_bullet_points(text):
     points = re.findall(r'[\u4e00-\u9fff]+[。]', text)
-    return points[0:]
+    return points[1:]
 
 # 控制輸出的字數
 def generate_reply_messages(response, user_id):
