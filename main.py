@@ -52,7 +52,7 @@ place_array = ["士林區", "大同區", "信義區", "北投區", "文山區", 
 user_states = {}
 user_messages = {}
 assistant_messages = {}
-MAX_CHARS = 1000000
+MAX_CHARS = 150
 user_next_indices = {}  # 追蹤每位用戶已經發送的訊息字數
 
 
@@ -178,7 +178,7 @@ def get_trusted_person(user_id):
 
 def split_bullet_points(text):
     # 透過正規表示式將列點的部分分開
-    title = re.match(r"\S*:", text)
+    title = re.match(r"\S*：", text)
     try:
         title = title.group(0)
     except:
