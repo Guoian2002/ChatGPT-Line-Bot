@@ -233,7 +233,7 @@ def handle_follow(event):
                             ))
         ]
     )
-    
+
 def generate_summary(conversation):
     return " ".join(conversation[:10])
 
@@ -331,7 +331,7 @@ def handle_text_message(event):
         elif text == '總結':
             conversation = user_messages[user_id] + assistant_messages[user_id]
             summary=generate_summary(conversation)
-             msg = TextSendMessage(text=summary)
+            msg = TextSendMessage(text=summary)
 
 
         elif text == '忘記':
