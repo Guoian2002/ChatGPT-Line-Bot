@@ -181,7 +181,7 @@ def split_bullet_points(text):
     title = re.match(r"\S*:", text)
     points = re.findall(r'\S*\d+\. \S*', text)
     # 去除第一個元素，因為在第一個列點之前的部分會是空字串
-    return title.group(), points[1:]
+    return title.groups(1), points[1:]
 
 # 控制輸出的字數
 def generate_reply_messages(response, user_id):
