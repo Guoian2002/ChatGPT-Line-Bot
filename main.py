@@ -246,6 +246,8 @@ def handle_text_message(event):
     chat = memory.chats[user_id]
     if(chat == None):
         memory.setChat(user_id, True)
+    if(chat == True):
+        print("chat is on")
     text = event.message.text.strip()
     logger.info(f'{user_id}: {text}')
     api_key = os.getenv("CHATGPT_API_KEY")
