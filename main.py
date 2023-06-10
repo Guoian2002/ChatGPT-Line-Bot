@@ -175,21 +175,32 @@ def get_trusted_person(user_id):
 #     file_url = f"https://storage.googleapis.com/{bucket_name}/{file_name}"
 #     return file_url
 
-# def split_bullet_points(text):
-#     points = re.findall(r'[\u4e00-\u9fff]+[。]', text)
-#     return points[1:]
+def split_bullet_points(text):
+    # 透過正規表示式將列點的部分分開
+    title = re.match(r'[\u4e00-\u9fff]+[。]', text)
+    try:
+        title = title.group(0)
+    except:
+        title = "前面取不到"
+    points = re.findall(r'\S*\d+\. \S*', text)
+    # 去除第一個元素，因為在第一個列點之前的部分會是空字串
+    return title, points[1:]
 
-# # 控制輸出的字數
-# def generate_reply_messages(response, user_id):
-#     messages = []
+# 控制輸出的字數
+def generate_reply_messages(response, user_id):
+    messages = []
 
-#     parts = split_bullet_points(response)
-#     if(len(parts) != 0):                
-#         for part in parts:
-#             messages.append(TextSendMessage(text=part))
-#     else:
-#         messages.append(TextSendMessage(text=response))
-
+    # 檢查文字是否為列點式的格式
+    title, parts = split_bullet_points(response)
+    if(len(parts) != 0):
+        messages.append(TextSendMessage(text=title, quick_reply=QuickReply(
+                items=[QuickReplyButton(action=MessageAction(label="繼續", text="繼續"))])))
+        for part in parts:
+            messages.append(TextSendMessage(text=part, quick_reply=QuickReply(
+                items=[QuickReplyButton(action=MessageAction(label="繼續", text="繼續"))])))
+    else:
+        messages.append(TextSendMessage(text=response, quick_reply=QuickReply(
+                items=[QuickReplyButton(action=MessageAction(label="繼續", text="繼續"))])))
     # else:
     #     response_len = len(response)
     #     remaining_response = response
@@ -206,6 +217,9 @@ def get_trusted_person(user_id):
 
     user_next_indices[user_id] = len(user_messages[user_id])
     return messages
+
+
+
 
 
 #登入歡迎
@@ -482,16 +496,16 @@ def handle_text_message(event):
                         raise Exception(error_message)
                     role, response = get_role_and_content(response)
                     msg = TextSendMessage(text=response)
-            # else:
-            #     is_successful, response, error_message = user_model.chat_completions(
-            #         memory.get(user_id), os.getenv('OPENAI_MODEL_ENGINE'))
-            #     if not is_successful:
-            #         raise Exception(error_message)
-            #     role, response = get_role_and_content(response)
-            #     if len(response) > MAX_CHARS:
-            #         messages = generate_reply_messages(response, user_id)
-            #         line_bot_api.reply_message(event.reply_token, messages)
-            #         return 'OK'
+            else:
+                is_successful, response, error_message = user_model.chat_completions(
+                    memory.get(user_id), os.getenv('OPENAI_MODEL_ENGINE'))
+                if not is_successful:
+                    raise Exception(error_message)
+                role, response = get_role_and_content(response)
+                # if len(response) > MAX_CHARS:
+                #     messages = generate_reply_messages(response, user_id)
+                #     line_bot_api.reply_message(event.reply_token, messages)
+                #     return 'OK'
             memory.append(user_id, role, response)
             msg = TextSendMessage(text=response)
 
@@ -510,6 +524,55 @@ def handle_text_message(event):
         else:
             msg = TextSendMessage(text=str(e))
     line_bot_api.reply_message(event.reply_token, msg)
+
+#語音輸出測試
+# @handler.add(MessageEvent, message=AudioMessage)
+# def handle_audio_message(event):
+#     user_id = event.source.user_id
+#     audio_content = line_bot_api.get_message_content(event.message.id)
+#     input_audio_path = f'{str(uuid.uuid4())}.m4a'
+#     with open(input_audio_path, 'wb') as fd:
+#         for chunk in audio_content.iter_content():
+#             fd.write(chunk)
+
+#     try:
+#         if not model_management.get(user_id):
+#             raise ValueError('Invalid API token')
+#         else:
+#             is_successful, response, error_message = model_management[user_id].audio_transcriptions(input_audio_path, 'whisper-1')
+#             if not is_successful:
+#                 raise Exception(error_message)
+#             memory.append(user_id, 'user', response['text'])
+#             is_successful, response, error_message = model_management[user_id].chat_completions(memory.get(user_id), 'gpt-3.5-turbo')
+#             if not is_successful:
+#                 raise Exception(error_message)
+#             role, response_text = get_role_and_content(response)
+#             memory.append(user_id, role, response_text)
+            
+#             # 將回應文字轉換為語音
+#             output_audio_path = synthesize_text_to_speech(response_text)
+
+#             # 將語音檔案上傳到 Google Cloud Storage
+#             audio_url = upload_to_cloud_storage(output_audio_path, 'your_bucket_name')
+
+#             # 創建音訊訊息
+#             msg = AudioSendMessage(original_content_url=audio_url, duration=240000)
+#     except ValueError:
+#         msg = TextSendMessage(text='請先註冊你的 API Token，格式為 /註冊 [API TOKEN]')
+#     except KeyError:
+#         msg = TextSendMessage(text='請先註冊 Token，格式為 /註冊 sk-xxxxx')
+#     except Exception as e:
+#         memory.remove(user_id)
+#         if str(e).startswith('Incorrect API key provided'):
+#             msg = TextSendMessage(text='OpenAI API Token 有誤，請重新註冊。')
+#         else:
+#             msg = TextSendMessage(text=str(e))
+
+#     # 刪除本地音頻檔案
+#     os.remove(input_audio_path)
+#     os.remove(output_audio_path)
+
+#     line_bot_api.reply_message(event.reply_token, msg)
 
 #語音輸入
 @handler.add(MessageEvent, message=AudioMessage)
