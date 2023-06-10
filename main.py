@@ -47,7 +47,7 @@ memory = Memory(system_message=os.getenv(
     'SYSTEM_MESSAGE'), memory_message_count=2)
 model_management = {}
 api_keys = {}
-chat = True
+# chat = True
 place_array = ["士林區", "大同區", "信義區", "北投區", "文山區", "大安區", "中正區", "內湖區", "松山區", "中山區"]
 user_states = {}
 user_messages = {}
@@ -242,8 +242,10 @@ def generate_summary(conversation):
 @handler.add(MessageEvent, message=TextMessage)
 
 def handle_text_message(event):
-    global chat
     user_id = event.source.user_id
+    chat = memory.chats[user_id]
+    if(chat == False):
+        memory.setChat(user_id, True)
     text = event.message.text.strip()
     logger.info(f'{user_id}: {text}')
     api_key = os.getenv("CHATGPT_API_KEY")
