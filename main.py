@@ -178,8 +178,8 @@ def get_trusted_person(user_id):
 
 def split_bullet_points(text):
     # 透過正規表示式將列點的部分分開
-    title = re.match(r"\S*:")
-    points = re.findall(r'\S*\d+\.\s*\S*', text)
+    title = re.match(r"\S*:", text)
+    points = re.findall(r'\S*\d+\. \S*', text)
     # 去除第一個元素，因為在第一個列點之前的部分會是空字串
     return title, points[1:]
 
@@ -190,10 +190,10 @@ def generate_reply_messages(response, user_id):
     # 檢查文字是否為列點式的格式
     title, parts = split_bullet_points(response)
     if(len(parts) != 0):
+        messages.append(TextSendMessage(text=title, quick_reply=QuickReply(
+                items=[QuickReplyButton(action=MessageAction(label="繼續", text="繼續"))])))
         for part in parts:
             messages.append(TextSendMessage(text=part, quick_reply=QuickReply(
-                items=[QuickReplyButton(action=MessageAction(label="繼續", text="繼續"))])))
-        messages.append(TextSendMessage(text=title, quick_reply=QuickReply(
                 items=[QuickReplyButton(action=MessageAction(label="繼續", text="繼續"))])))
     else:
         messages.append(TextSendMessage(text=response, quick_reply=QuickReply(
@@ -248,6 +248,7 @@ def generate_summary(conversation):
 @handler.add(MessageEvent, message=TextMessage)
 
 def handle_text_message(event):
+    msg = ""
     print("print")
     user_id = event.source.user_id
     chat = memory.chats[user_id]
@@ -462,7 +463,7 @@ def handle_text_message(event):
                     )
                 )
 
-        if memory.chats[user_id] == True and text != "開啟聊天":
+        if memory.chats[user_id] and msg == "":
             user_model = model_management[user_id]
             memory.append(user_id, 'user', text)
             url = website.get_url_from_text(text)
