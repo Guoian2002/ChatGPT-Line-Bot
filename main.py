@@ -244,7 +244,7 @@ def generate_summary(conversation):
 def handle_text_message(event):
     user_id = event.source.user_id
     chat = memory.chats[user_id]
-    if(chat == None):
+    if(chat == ""):
         print("沒有chat")
         memory.setChat(user_id, True)
     text = event.message.text.strip()
