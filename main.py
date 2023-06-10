@@ -32,7 +32,6 @@ import threading
 # import json
 # credentials_dict = json.loads(os.environ['GOOGLE_APPLICATION_CREDENTIALS'])
 # credentials = service_account.Credentials.from_service_account_info(credentials_dict)
-
 # storage_client = storage.Client(credentials=credentials)
 
 load_dotenv('.env')
@@ -123,7 +122,7 @@ def insert_into_db(user_id, relation, phone_number):
 
     # 建立連接
     cur = conn.cursor()
-
+ 
     # 檢查 user_id 是否已存在
     cur.execute("SELECT COUNT(*) FROM friend WHERE user_id = %s", (user_id,))
     count = cur.fetchone()[0]
@@ -178,7 +177,7 @@ def get_trusted_person(user_id):
 
 def split_bullet_points(text):
     # 透過正規表示式將列點的部分分開
-    title = re.match(r"\S*：", text)
+    title = re.match(r'[\u4e00-\u9fff]+[。]', text)
     try:
         title = title.group(0)
     except:
@@ -503,10 +502,10 @@ def handle_text_message(event):
                 if not is_successful:
                     raise Exception(error_message)
                 role, response = get_role_and_content(response)
-                # if len(response) > MAX_CHARS:
-                #     messages = generate_reply_messages(response, user_id)
-                #     line_bot_api.reply_message(event.reply_token, messages)
-                #     return 'OK'
+                if len(response) > MAX_CHARS:
+                    messages = generate_reply_messages(response, user_id)
+                    line_bot_api.reply_message(event.reply_token, messages)
+                    return 'OK'
             memory.append(user_id, role, response)
             msg = TextSendMessage(text=response)
 
