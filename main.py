@@ -242,6 +242,7 @@ def generate_summary(conversation):
 @handler.add(MessageEvent, message=TextMessage)
 
 def handle_text_message(event):
+    print("print")
     user_id = event.source.user_id
     chat = memory.chats[user_id]
     if(chat == ""):
