@@ -51,7 +51,8 @@ place_array = ["士林區", "大同區", "信義區", "北投區", "文山區", 
 user_states = {}
 MAX_CHARS = 150
 user_next_indices = {} 
-
+user_messages = {}
+assistant_messages = {}
 
 @app.route("/callback", methods=['POST'])
 def callback():
@@ -231,8 +232,6 @@ def generate_summary(conversation):
 @handler.add(MessageEvent, message=TextMessage)
 
 def handle_text_message(event):
-    user_messages = {}
-    assistant_messages = {}
     msg = ""
     print("print")
     user_id = event.source.user_id
