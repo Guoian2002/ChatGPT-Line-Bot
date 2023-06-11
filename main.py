@@ -43,7 +43,7 @@ youtube = Youtube(step=4)
 website = Website()
 
 memory = Memory(system_message=os.getenv(
-    'SYSTEM_MESSAGE'), memory_message_count=3)
+    'SYSTEM_MESSAGE'), memory_message_count=2)
 model_management = {}
 api_keys = {}
 # chat = True
@@ -260,8 +260,6 @@ def handle_text_message(event):
 
     if user_id not in user_next_indices:
         user_next_indices[user_id] = 0
-
-    
 
     try:
         if text == '是我願意相信emo':
