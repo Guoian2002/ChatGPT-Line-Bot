@@ -49,8 +49,6 @@ api_keys = {}
 # chat = True
 place_array = ["士林區", "大同區", "信義區", "北投區", "文山區", "大安區", "中正區", "內湖區", "松山區", "中山區"]
 user_states = {}
-user_messages = {}
-assistant_messages = {}
 MAX_CHARS = 150
 user_next_indices = {} 
 
@@ -233,6 +231,8 @@ def generate_summary(conversation):
 @handler.add(MessageEvent, message=TextMessage)
 
 def handle_text_message(event):
+    user_messages = {}
+    assistant_messages = {}
     msg = ""
     print("print")
     user_id = event.source.user_id
