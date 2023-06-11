@@ -43,7 +43,7 @@ youtube = Youtube(step=4)
 website = Website()
 
 memory = Memory(system_message=os.getenv(
-    'SYSTEM_MESSAGE'), memory_message_count=2)
+    'SYSTEM_MESSAGE'), memory_message_count=3)
 model_management = {}
 api_keys = {}
 # chat = True
@@ -52,7 +52,7 @@ user_states = {}
 user_messages = {}
 assistant_messages = {}
 MAX_CHARS = 150
-user_next_indices = {}  # 追蹤每位用戶已經發送的訊息字數
+user_next_indices = {} 
 
 
 @app.route("/callback", methods=['POST'])
@@ -159,21 +159,6 @@ def get_trusted_person(user_id):
     conn.close()
 
     return result
-# 語音輸出測試
-# def synthesize_text_to_speech(text, language='zh-TW'):
-#     tts = gTTS(text=text, lang=language)
-#     output_audio_path = f"{str(uuid.uuid4())}.mp3"
-#     tts.save(output_audio_path)
-#     return output_audio_path
-
-# def upload_to_cloud_storage(file_path, bucket_name):
-#     storage_client = storage.Client()
-#     bucket = storage_client.get_bucket(bucket_name)
-#     file_name = os.path.basename(file_path)
-#     blob = bucket.blob(file_name)
-#     blob.upload_from_filename(file_path)
-#     file_url = f"https://storage.googleapis.com/{bucket_name}/{file_name}"
-#     return file_url
 
 def split_bullet_points(text):
     # 透過正規表示式將列點的部分分開
@@ -217,9 +202,6 @@ def generate_reply_messages(response, user_id):
 
     user_next_indices[user_id] = len(user_messages[user_id])
     return messages
-
-
-
 
 
 #登入歡迎
@@ -277,8 +259,10 @@ def handle_text_message(event):
 
     user_messages[user_id].append(text)
 
-    # if user_id not in user_next_indices:
-    #     user_next_indices[user_id] = 0
+    if user_id not in user_next_indices:
+        user_next_indices[user_id] = 0
+
+    conversation = user_messages[user_id] + assistant_messages[user_id]
 
     try:
         if text == '是我願意相信emo':
@@ -343,14 +327,15 @@ def handle_text_message(event):
                 )
             )
 
-        elif text == '總結':
-            memory.chats[user_id] = True
-            conversation = user_messages[user_id] + assistant_messages[user_id]
-            text=generate_summary(conversation)
 
         elif text == '忘記':
             memory.remove(user_id)
+            conversation = ""
             msg = TextSendMessage(text='歷史訊息清除成功')
+  
+        elif text == '總結':
+            memory.chats[user_id] = True
+            text=generate_summary(conversation)
 
         elif text == '請畫':
             user_states[user_id] = 'drawing'
