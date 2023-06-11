@@ -262,7 +262,7 @@ def handle_text_message(event):
     if user_id not in user_next_indices:
         user_next_indices[user_id] = 0
 
-    conversation = user_messages[user_id] + assistant_messages[user_id]
+    
 
     try:
         if text == '是我願意相信emo':
@@ -330,11 +330,13 @@ def handle_text_message(event):
 
         elif text == '忘記':
             memory.remove(user_id)
-            conversation = ""
+            user_messages[user_id]=[]
+            assistant_messages[user_id]=[]
             msg = TextSendMessage(text='歷史訊息清除成功')
   
         elif text == '總結':
             memory.chats[user_id] = True
+            conversation = user_messages[user_id] + assistant_messages[user_id]
             text=generate_summary(conversation)
 
         elif text == '請畫':
