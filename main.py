@@ -337,7 +337,10 @@ def handle_text_message(event):
         elif text == '總結':
             memory.chats[user_id] = True
             conversation = user_messages[user_id] + assistant_messages[user_id]
-            text=generate_summary(conversation)
+            if len(conversation) == 0:
+                msg = TextSendMessage(text='目前您沒有跟emo聊天，請先聊聊再來~')
+            else:
+                text=generate_summary(conversation)
 
         elif text == '請畫':
             user_states[user_id] = 'drawing'
@@ -511,55 +514,6 @@ def handle_text_message(event):
         else:
             msg = TextSendMessage(text=str(e))
     line_bot_api.reply_message(event.reply_token, msg)
-
-#語音輸出測試
-# @handler.add(MessageEvent, message=AudioMessage)
-# def handle_audio_message(event):
-#     user_id = event.source.user_id
-#     audio_content = line_bot_api.get_message_content(event.message.id)
-#     input_audio_path = f'{str(uuid.uuid4())}.m4a'
-#     with open(input_audio_path, 'wb') as fd:
-#         for chunk in audio_content.iter_content():
-#             fd.write(chunk)
-
-#     try:
-#         if not model_management.get(user_id):
-#             raise ValueError('Invalid API token')
-#         else:
-#             is_successful, response, error_message = model_management[user_id].audio_transcriptions(input_audio_path, 'whisper-1')
-#             if not is_successful:
-#                 raise Exception(error_message)
-#             memory.append(user_id, 'user', response['text'])
-#             is_successful, response, error_message = model_management[user_id].chat_completions(memory.get(user_id), 'gpt-3.5-turbo')
-#             if not is_successful:
-#                 raise Exception(error_message)
-#             role, response_text = get_role_and_content(response)
-#             memory.append(user_id, role, response_text)
-            
-#             # 將回應文字轉換為語音
-#             output_audio_path = synthesize_text_to_speech(response_text)
-
-#             # 將語音檔案上傳到 Google Cloud Storage
-#             audio_url = upload_to_cloud_storage(output_audio_path, 'your_bucket_name')
-
-#             # 創建音訊訊息
-#             msg = AudioSendMessage(original_content_url=audio_url, duration=240000)
-#     except ValueError:
-#         msg = TextSendMessage(text='請先註冊你的 API Token，格式為 /註冊 [API TOKEN]')
-#     except KeyError:
-#         msg = TextSendMessage(text='請先註冊 Token，格式為 /註冊 sk-xxxxx')
-#     except Exception as e:
-#         memory.remove(user_id)
-#         if str(e).startswith('Incorrect API key provided'):
-#             msg = TextSendMessage(text='OpenAI API Token 有誤，請重新註冊。')
-#         else:
-#             msg = TextSendMessage(text=str(e))
-
-#     # 刪除本地音頻檔案
-#     os.remove(input_audio_path)
-#     os.remove(output_audio_path)
-
-#     line_bot_api.reply_message(event.reply_token, msg)
 
 #語音輸入
 @handler.add(MessageEvent, message=AudioMessage)
